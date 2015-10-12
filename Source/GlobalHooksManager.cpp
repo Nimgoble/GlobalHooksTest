@@ -77,16 +77,21 @@ bool GlobalHooksManager::WantsMessage(uiohook_event * const event)
 	bool result = false;
 	{
 		WantsMessagesLock lock(wantsMessageMutex);
-		result = (event->type == EVENT_KEY_TYPED && shouldForwardMessages);
+		result = (event->type == GlobalHooksHooker::GetEventTypeToHook() && shouldForwardMessages);
 	}
 	return result;
 }
 
 void GlobalHooksManager::KeyPressed(const juce::KeyPress& keyInfo)
 {
+	int rawKeyCode = keyInfo.getKeyCode();
+	int mods = keyInfo.getModifiers().getRawFlags();
 	for (int i = keyListeners->size(); --i >= 0;)
 	{
-		bool keyWasUsed = keyListeners->getUnchecked(i)->keyPressed(keyInfo, nullptr);
+		{
+			MessageManagerLock mml;
+			bool keyWasUsed = keyListeners->getUnchecked(i)->keyPressed(keyInfo, nullptr);
+		}
 		i = jmin(i, keyListeners->size());
 	}
 }

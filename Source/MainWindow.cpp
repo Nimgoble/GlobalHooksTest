@@ -80,6 +80,7 @@ void MainWindow::handleAsyncUpdate()
 	ApplicationCommandManager& commandManager = MainWindow::getApplicationCommandManager();
 	commandManager.registerAllCommandsForTarget(mainComponent);
 	commandManager.registerAllCommandsForTarget(JUCEApplication::getInstance());
+	commandManager.setFirstCommandTarget(mainComponent);
 	juce::ApplicationCommandInfo commandInfo(3);
 	commandInfo.setInfo("Added Command", "Command that was added at runtime.", "Test Commands", 0);
 	commandInfo.addDefaultKeypress('y', juce::ModifierKeys::ctrlModifier);

@@ -52,7 +52,7 @@
  * defines _MSC_VER but does not define LPFN_ISWOW64PROCESS, such as ICC for
  * windows, please file a bug report.
  */
-#ifndef _MSC_VER
+#ifndef LPFN_ISWOW64PROCESS
 typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 #endif
 

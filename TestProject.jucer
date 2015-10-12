@@ -4,6 +4,20 @@
               bundleIdentifier="com.yourcompany.TestProject" includeBinaryInAppConfig="1"
               jucerVersion="3.2.0">
   <MAINGROUP id="pY4Jxg" name="TestProject">
+    <GROUP id="{CA2FF5F5-856A-64B6-8A29-6770E57C650C}" name="libuiohook">
+      <FILE id="nDHvkh" name="config.h" compile="0" resource="0" file="libuiohook/config.h"/>
+      <FILE id="etlOtm" name="copyright.h" compile="0" resource="0" file="libuiohook/copyright.h"/>
+      <FILE id="YDrOSi" name="input_helper.cpp" compile="1" resource="0"
+            file="libuiohook/input_helper.cpp"/>
+      <FILE id="BWeUWb" name="input_helper.h" compile="0" resource="0" file="libuiohook/input_helper.h"/>
+      <FILE id="AIUiOe" name="input_hook.cpp" compile="1" resource="0" file="libuiohook/input_hook.cpp"/>
+      <FILE id="CiSv6X" name="logger.cpp" compile="1" resource="0" file="libuiohook/logger.cpp"/>
+      <FILE id="pt24OS" name="logger.h" compile="0" resource="0" file="libuiohook/logger.h"/>
+      <FILE id="Oi4cDX" name="post_event.cpp" compile="1" resource="0" file="libuiohook/post_event.cpp"/>
+      <FILE id="v6oRxZ" name="system_properties.cpp" compile="1" resource="0"
+            file="libuiohook/system_properties.cpp"/>
+      <FILE id="kKngSK" name="uiohook.h" compile="0" resource="0" file="libuiohook/uiohook.h"/>
+    </GROUP>
     <GROUP id="{02FAE260-72AE-50FB-656B-FF8931EC590E}" name="Source">
       <FILE id="Ez7n9f" name="GlobalHooksHooker.cpp" compile="1" resource="0"
             file="Source/GlobalHooksHooker.cpp"/>
@@ -35,41 +49,43 @@
     <VS2013 targetFolder="Builds/VisualStudio2013">
       <CONFIGURATIONS>
         <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="1" optimisation="1" targetName="TestProject"/>
+                       isDebug="1" optimisation="1" targetName="TestProject" headerPath="..\..\libuiohook"
+                       defines="_CRT_SECURE_NO_WARNINGS"/>
         <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
-                       isDebug="0" optimisation="3" targetName="TestProject"/>
+                       isDebug="0" optimisation="3" targetName="TestProject" headerPath="..\..\libuiohook"
+                       defines="_CRT_SECURE_NO_WARNINGS"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_core" path="../../JUCE-master/modules"/>
-        <MODULEPATH id="juce_events" path="../../JUCE-master/modules"/>
-        <MODULEPATH id="juce_graphics" path="../../JUCE-master/modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../JUCE-master/modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../JUCE-master/modules"/>
-        <MODULEPATH id="juce_gui_extra" path="../../JUCE-master/modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../JUCE-master/modules"/>
-        <MODULEPATH id="juce_video" path="../../JUCE-master/modules"/>
-        <MODULEPATH id="juce_opengl" path="../../JUCE-master/modules"/>
-        <MODULEPATH id="juce_audio_basics" path="../../JUCE-master/modules"/>
-        <MODULEPATH id="juce_audio_devices" path="../../JUCE-master/modules"/>
-        <MODULEPATH id="juce_audio_formats" path="../../JUCE-master/modules"/>
-        <MODULEPATH id="juce_audio_processors" path="../../JUCE-master/modules"/>
+        <MODULEPATH id="juce_core" path="..\..\JUCE\JUCE-master\modules"/>
+        <MODULEPATH id="juce_events" path="..\..\JUCE\JUCE-master\modules"/>
+        <MODULEPATH id="juce_graphics" path="..\..\JUCE\JUCE-master\modules"/>
+        <MODULEPATH id="juce_data_structures" path="..\..\JUCE\JUCE-master\modules"/>
+        <MODULEPATH id="juce_gui_basics" path="..\..\JUCE\JUCE-master\modules"/>
+        <MODULEPATH id="juce_gui_extra" path="..\..\JUCE\JUCE-master\modules"/>
+        <MODULEPATH id="juce_cryptography" path="..\..\JUCE\JUCE-master\modules"/>
+        <MODULEPATH id="juce_video" path="..\..\JUCE\JUCE-master\modules"/>
+        <MODULEPATH id="juce_opengl" path="..\..\JUCE\JUCE-master\modules"/>
+        <MODULEPATH id="juce_audio_basics" path="..\..\JUCE\JUCE-master\modules"/>
+        <MODULEPATH id="juce_audio_devices" path="..\..\JUCE\JUCE-master\modules"/>
+        <MODULEPATH id="juce_audio_formats" path="..\..\JUCE\JUCE-master\modules"/>
+        <MODULEPATH id="juce_audio_processors" path="..\..\JUCE\JUCE-master\modules"/>
       </MODULEPATHS>
     </VS2013>
   </EXPORTFORMATS>
   <MODULES>
-    <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="0"/>
-    <MODULES id="juce_audio_devices" showAllCode="1" useLocalCopy="0"/>
-    <MODULES id="juce_audio_formats" showAllCode="1" useLocalCopy="0"/>
-    <MODULES id="juce_audio_processors" showAllCode="1" useLocalCopy="0"/>
-    <MODULES id="juce_core" showAllCode="1" useLocalCopy="0"/>
-    <MODULES id="juce_cryptography" showAllCode="1" useLocalCopy="0"/>
-    <MODULES id="juce_data_structures" showAllCode="1" useLocalCopy="0"/>
-    <MODULES id="juce_events" showAllCode="1" useLocalCopy="0"/>
-    <MODULES id="juce_graphics" showAllCode="1" useLocalCopy="0"/>
-    <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="0"/>
-    <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="0"/>
-    <MODULES id="juce_opengl" showAllCode="1" useLocalCopy="0"/>
-    <MODULES id="juce_video" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_audio_devices" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_audio_formats" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_audio_processors" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_core" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_cryptography" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_data_structures" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_events" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_graphics" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_opengl" showAllCode="1" useLocalCopy="1"/>
+    <MODULES id="juce_video" showAllCode="1" useLocalCopy="1"/>
   </MODULES>
   <JUCEOPTIONS/>
 </JUCERPROJECT>

@@ -15,3 +15,5 @@ Lib/libuiohook-Debug-x64.lib
 *.filters
 Builds/VisualStudio2013/TestProject.opensdf
 *.pdb
+*.lib
+Builds/VisualStudio2013/Debug/TestProject.exp

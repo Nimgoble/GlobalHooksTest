@@ -10,11 +10,12 @@
 
 #include "GlobalHooksThread.h"
 
-GlobalHooksThread::GlobalHooksThread(GlobalHooksResultsCallback _threadListener) :
+GlobalHooksThread::GlobalHooksThread(GlobalHooksResultsCallback _threadListener, event_type _eventTypeToHook) :
 	Thread("Global Hooks Thread")
 {	
 	threadListener = _threadListener;
-	startThread(10);
+	eventTypeToHook = _eventTypeToHook;
+	startThread(8);
 }
 
 GlobalHooksThread::~GlobalHooksThread()
@@ -26,8 +27,8 @@ GlobalHooksThread::~GlobalHooksThread()
 
 void GlobalHooksThread::run()
 {
-	int result = hook_run();
-	threadListener(result);
+	int result = hook_run(eventTypeToHook);
+	/*threadListener(result);
 	if (result != UIOHOOK_SUCCESS)
 		return;
 
@@ -36,7 +37,7 @@ void GlobalHooksThread::run()
 
 	}
 
-	hook_stop();
+	hook_stop();*/
 }
 
 int GlobalHooksThread::StopHook()

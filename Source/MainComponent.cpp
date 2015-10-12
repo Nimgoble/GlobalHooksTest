@@ -115,12 +115,12 @@ void MainComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& 
 	{
 	case MainComponent::CommandIDs::Command1:
 		result.setInfo("Command 1", "Test Command 1", testCommandsCategory, 0);
-		result.addDefaultKeypress('-', ModifierKeys::commandModifier);
+		result.addDefaultKeypress('-', ModifierKeys::ctrlModifier);
 		break;
 
 	case MainComponent::CommandIDs::Command2:
 		result.setInfo("Command 2", "Test Command 2", testCommandsCategory, 0);
-		result.addDefaultKeypress('=', ModifierKeys::commandModifier);
+		result.addDefaultKeypress('=', ModifierKeys::ctrlModifier);
 		break;
 	default:
 		break;

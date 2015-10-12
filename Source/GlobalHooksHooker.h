@@ -15,6 +15,10 @@
 #include "GlobalHooksListener.h"
 #include "GlobalHooksThread.h"
 
+#ifndef LOWORD
+#define LOWORD(l)           ((WORD)(((DWORD_PTR)(l)) & 0xffff))
+#endif
+
 typedef GenericScopedLock<CriticalSection> GlobalHooksLock;
 class GlobalHooksHooker
 {
@@ -40,7 +44,7 @@ public:
 		{
 			GlobalHooksLock lock(GlobalHooksHooker::HookMutex);
 			isHookRunning = true;
-			globalHooksThread = new GlobalHooksThread(&GlobalHooksHooker::GlobalHooksRunResult);
+			globalHooksThread = new GlobalHooksThread(&GlobalHooksHooker::GlobalHooksRunResult, eventTypeToHook);
 		}
 	}
 
@@ -49,12 +53,14 @@ public:
 		if (!IsHookRunning())
 			return;
 
+		int result = 0;
+		bool threadResult = false;
 		{
 			GlobalHooksLock lock(GlobalHooksHooker::HookMutex);
 			if (globalHooksThread != nullptr)
 			{
-				int result = globalHooksThread->StopHook();
-				bool threadResult = globalHooksThread->waitForThreadToExit(2000);
+				result = globalHooksThread->StopHook();
+				threadResult = globalHooksThread->waitForThreadToExit(10000);
 				globalHooksThread = nullptr;
 			}
 			HooksListeners.clear();
@@ -79,25 +85,53 @@ public:
 
 	static void StaticDispatchProcedure(uiohook_event * const event)
 	{
+		//Do this outside of the lock, since the hook's cleanup depends on it.
+		if (event->type != eventTypeToHook)
+			return;
+
 		{
-			GlobalHooksLock lock(GlobalHooksHooker::HookMutex);
+			GlobalHooksLock lock(GlobalHooksHooker::HookMutex);	
 
 			const juce_wchar textCharacter = event->data.keyboard.keychar;
 			const juce::KeyPress keyInfo
 			(
-				event->data.keyboard.rawcode,
-				juce::ModifierKeys::getCurrentModifiers().withoutMouseButtons(),
-				textCharacter
+				(int)event->data.keyboard.keychar,
+				GetJUCEModifierKeysFromEvent(event),
+				0
 			);
 
 			for (int i = HooksListeners.size(); --i >= 0;)
 			{
 				GlobalHooksDispatchListener *listener = HooksListeners.getUnchecked(i);
 				if (listener->WantsMessage(event))
-					listener->OnMessageReceived(event);
+					listener->KeyPressed(keyInfo);
 			}
 				
 		}
+	}
+
+	static juce::ModifierKeys GetJUCEModifierKeysFromEvent(uiohook_event * const event)
+	{
+		int flags = 0;
+		juce::ModifierKeys keys;
+		if ((event->mask & MASK_SHIFT_L) || (event->mask & MASK_SHIFT_R))
+			flags |= juce::ModifierKeys::shiftModifier;
+
+		if
+		(
+			((event->mask & MASK_CTRL_L) || (event->mask & MASK_CTRL_R)) &&
+			((event->mask & MASK_ALT_L) || (event->mask & MASK_ALT_R))
+		)
+			flags |= juce::ModifierKeys::ctrlAltCommandModifiers;
+		else
+		{
+			if ((event->mask & MASK_CTRL_L) || (event->mask & MASK_CTRL_R))
+				flags |= juce::ModifierKeys::ctrlModifier;
+			if ((event->mask & MASK_ALT_L) || (event->mask & MASK_ALT_R))
+				flags |= juce::ModifierKeys::altModifier;
+		}
+
+		return keys.withFlags(flags);
 	}
 
 	static void GlobalHooksRunResult(int result)
@@ -136,11 +170,14 @@ public:
 			isHookRunning = running;
 		}
 	}
+
+	static event_type GetEventTypeToHook(){ return eventTypeToHook; }
 private:
 	static juce::Array<GlobalHooksDispatchListener *, CriticalSection> HooksListeners;
 	static CriticalSection HookMutex;
 	static bool isHookInitialized;
 	static bool isHookRunning;
+	static event_type eventTypeToHook;
 
 	static juce::ScopedPointer<GlobalHooksThread> globalHooksThread;
 };

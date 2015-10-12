@@ -64,18 +64,26 @@ typedef bool (*logger_t)(unsigned int, const char *, ...);
 
 /* Begin Virtual Event Types and Data Structures */
 typedef enum _event_type {
-	EVENT_HOOK_ENABLED = 1,
-	EVENT_HOOK_DISABLED,
-	EVENT_KEY_TYPED,
-	EVENT_KEY_PRESSED,
-	EVENT_KEY_RELEASED,
-	EVENT_MOUSE_CLICKED,
-	EVENT_MOUSE_PRESSED,
-	EVENT_MOUSE_RELEASED,
-	EVENT_MOUSE_MOVED,
-	EVENT_MOUSE_DRAGGED,
-	EVENT_MOUSE_WHEEL
+	EVENT_HOOK_ENABLED		= 1 << 0,
+	EVENT_HOOK_DISABLED		= 1 << 1,
+	EVENT_KEY_TYPED			= 1 << 2,
+	EVENT_KEY_PRESSED		= 1 << 3,
+	EVENT_KEY_RELEASED		= 1 << 4,
+	EVENT_MOUSE_CLICKED		= 1 << 5,
+	EVENT_MOUSE_PRESSED		= 1 << 6,
+	EVENT_MOUSE_RELEASED	= 1 << 7,
+	EVENT_MOUSE_MOVED		= 1 << 8,
+	EVENT_MOUSE_DRAGGED		= 1 << 9,
+	EVENT_MOUSE_WHEEL		= 1 << 10,
+	EVENT_ALL_KEY			= EVENT_KEY_TYPED | EVENT_KEY_PRESSED | EVENT_KEY_RELEASED,
+	EVENT_ALL_MOUSE			= EVENT_MOUSE_CLICKED | EVENT_MOUSE_PRESSED | EVENT_MOUSE_RELEASED | EVENT_MOUSE_MOVED | EVENT_MOUSE_DRAGGED | EVENT_MOUSE_WHEEL,
+	EVENT_ALL				= EVENT_ALL_KEY | EVENT_ALL_MOUSE
 } event_type;
+
+//inline event_type operator|(event_type a, event_type b)
+//{
+//	return static_cast<event_type>(static_cast<int>(a) | static_cast<int>(b));
+//}
 
 typedef struct _screen_data {
 	uint8_t number;
@@ -402,7 +410,7 @@ extern "C" {
 	UIOHOOK_API void hook_set_dispatch_proc(dispatcher_t dispatch_proc);
 
 	// Insert the event hook.
-	UIOHOOK_API int hook_run();
+	UIOHOOK_API int hook_run(event_type _eventsToHook);
 
 	// Withdraw the event hook.
 	UIOHOOK_API int hook_stop();

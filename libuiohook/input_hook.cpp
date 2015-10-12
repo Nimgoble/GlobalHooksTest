@@ -52,8 +52,28 @@ static POINT last_click;
 // Static event memory.
 static uiohook_event event;
 
+//Which events to hook.
+static event_type eventsToHook;
+
 // Event dispatch callback.
 static dispatcher_t dispatcher = NULL;
+
+static __inline bool wants_to_hook_event(event_type type){
+	return eventsToHook & type;
+}
+
+static __inline bool wants_any_key_events(){
+	return wants_to_hook_event(event_type::EVENT_KEY_PRESSED) || wants_to_hook_event(event_type::EVENT_KEY_RELEASED) || wants_to_hook_event(event_type::EVENT_KEY_TYPED);
+}
+
+static __inline bool wants_any_mouse_events(){
+	return wants_to_hook_event(event_type::EVENT_MOUSE_CLICKED) ||
+		wants_to_hook_event(event_type::EVENT_MOUSE_DRAGGED) ||
+		wants_to_hook_event(event_type::EVENT_MOUSE_MOVED) ||
+		wants_to_hook_event(event_type::EVENT_MOUSE_PRESSED) ||
+		wants_to_hook_event(event_type::EVENT_MOUSE_RELEASED) ||
+		wants_to_hook_event(event_type::EVENT_MOUSE_WHEEL);
+}
 
 UIOHOOK_API void hook_set_dispatch_proc(dispatcher_t dispatch_proc) {
 	logger(LOG_LEVEL_DEBUG,	"%s [%u]: Setting new dispatch callback to %#p.\n",
@@ -192,6 +212,7 @@ static __inline void process_key_pressed(uint64_t timestamp, KBDLLHOOKSTRUCT *kb
 	else if (kbhook->vkCode == VK_LWIN)		{ set_modifier_mask(MASK_META_L);	}
 	else if (kbhook->vkCode == VK_RWIN)		{ set_modifier_mask(MASK_META_R);	}
 
+	
 	// Populate key pressed event.
 	event.time = timestamp;
 	event.reserved = 0x00;
@@ -203,11 +224,15 @@ static __inline void process_key_pressed(uint64_t timestamp, KBDLLHOOKSTRUCT *kb
 	event.data.keyboard.rawcode = kbhook->vkCode;
 	event.data.keyboard.keychar = CHAR_UNDEFINED;
 
-	logger(LOG_LEVEL_INFO,	"%s [%u]: Key %#X pressed. (%#X)\n",
-			__FUNCTION__, __LINE__, event.data.keyboard.keycode, event.data.keyboard.rawcode);
+	logger(LOG_LEVEL_INFO, "%s [%u]: Key %#X pressed. (%#X)\n",
+		__FUNCTION__, __LINE__, event.data.keyboard.keycode, event.data.keyboard.rawcode);
+	if (wants_to_hook_event(EVENT_KEY_PRESSED)){
+		// Populate key pressed event.
+		dispatch_event(&event);
+	}
 
-	// Populate key pressed event.
-	dispatch_event(&event);
+	if (!wants_to_hook_event(EVENT_KEY_TYPED))
+		return;
 
 	// If the pressed event was not consumed...
 	if (event.reserved ^ 0x01) {
@@ -247,6 +272,9 @@ static __inline void process_key_released(uint64_t timestamp, KBDLLHOOKSTRUCT *k
 	else if (kbhook->vkCode == VK_RMENU)	{ unset_modifier_mask(MASK_ALT_R);		}
 	else if (kbhook->vkCode == VK_LWIN)		{ unset_modifier_mask(MASK_META_L);		}
 	else if (kbhook->vkCode == VK_RWIN)		{ unset_modifier_mask(MASK_META_R);		}
+
+	if (!wants_to_hook_event(EVENT_KEY_RELEASED))
+		return;
 
 	// Populate key released event.
 	event.time = timestamp;
@@ -297,6 +325,8 @@ LRESULT CALLBACK keyboard_hook_event_proc(int nCode, WPARAM wParam, LPARAM lPara
 
 
 static __inline void process_button_pressed(uint64_t timestamp, MSLLHOOKSTRUCT *mshook, uint16_t button) {
+	if (!wants_to_hook_event(EVENT_MOUSE_PRESSED))
+		return;
 	// Track the number of clicks, the button must match the previous button.
 	if (button == click_button && (long int) (timestamp - click_time) <= hook_get_multi_click_time()) {
 		if (click_count < USHRT_MAX) {
@@ -344,26 +374,32 @@ static __inline void process_button_pressed(uint64_t timestamp, MSLLHOOKSTRUCT *
 }
 
 static __inline void process_button_released(uint64_t timestamp, MSLLHOOKSTRUCT *mshook, uint16_t button) {
-	// Populate mouse released event.
-	event.time = timestamp;
-	event.reserved = 0x00;
 
-	event.type = EVENT_MOUSE_RELEASED;
-	event.mask = get_modifiers();
+	if (wants_to_hook_event(EVENT_MOUSE_RELEASED)){
+		// Populate mouse released event.
+		event.time = timestamp;
+		event.reserved = 0x00;
 
-	event.data.mouse.button = button;
-	event.data.mouse.clicks = click_count;
+		event.type = EVENT_MOUSE_RELEASED;
+		event.mask = get_modifiers();
 
-	event.data.mouse.x = mshook->pt.x;
-	event.data.mouse.y = mshook->pt.y;
+		event.data.mouse.button = button;
+		event.data.mouse.clicks = click_count;
 
-	logger(LOG_LEVEL_INFO, "%s [%u]: Button %u released %u time(s). (%u, %u)\n",
+		event.data.mouse.x = mshook->pt.x;
+		event.data.mouse.y = mshook->pt.y;
+
+		logger(LOG_LEVEL_INFO, "%s [%u]: Button %u released %u time(s). (%u, %u)\n",
 			__FUNCTION__, __LINE__, event.data.mouse.button,
 			event.data.mouse.clicks,
 			event.data.mouse.x, event.data.mouse.y);
 
-	// Fire mouse released event.
-	dispatch_event(&event);
+		// Fire mouse released event.
+		dispatch_event(&event);
+	}
+
+	if (!wants_to_hook_event(EVENT_MOUSE_CLICKED))
+		return;
 
 	// If the pressed event was not consumed...
 	if (event.reserved ^ 0x01
@@ -415,6 +451,9 @@ static __inline void process_mouse_moved(uint64_t timestamp, MSLLHOOKSTRUCT *msh
 			event.type = EVENT_MOUSE_MOVED;
 		}
 
+		if (!wants_to_hook_event(event.type))
+			return;
+
 		event.data.mouse.button = MOUSE_NOBUTTON;
 		event.data.mouse.clicks = click_count;
 		event.data.mouse.x = mshook->pt.x;
@@ -430,6 +469,10 @@ static __inline void process_mouse_moved(uint64_t timestamp, MSLLHOOKSTRUCT *msh
 }
 
 static __inline void process_mouse_wheel(uint64_t timestamp, MSLLHOOKSTRUCT *mshook) {
+
+	if (!wants_to_hook_event(EVENT_MOUSE_WHEEL))
+		return;
+
 	// Track the number of clicks.
 	// Reset the click count and previous button.
 	click_count = 1;
@@ -591,6 +634,8 @@ LRESULT CALLBACK mouse_hook_event_proc(int nCode, WPARAM wParam, LPARAM lParam) 
 
 // Callback function that handles events.
 void CALLBACK win_hook_event_proc(HWINEVENTHOOK hook, DWORD event, HWND hWnd, LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime) {
+	bool success = true;
+	bool wantsAnyKeyEvents = wants_any_key_events(), wantsAnyMouseEvents = wants_any_mouse_events();
 	switch (event) {
 		case EVENT_OBJECT_NAMECHANGE:
 			logger(LOG_LEVEL_INFO, "%s [%u]: Restarting Windows input hook on window event: %#X.\n",
@@ -606,11 +651,19 @@ void CALLBACK win_hook_event_proc(HWINEVENTHOOK hook, DWORD event, HWND hWnd, LO
 			}
 
 			// Restart the event hooks.
-			keyboard_event_hhook = SetWindowsHookEx(WH_KEYBOARD_LL, keyboard_hook_event_proc, hInst, 0);
-			mouse_event_hhook = SetWindowsHookEx(WH_MOUSE_LL, mouse_hook_event_proc, hInst, 0);
+			if (wantsAnyKeyEvents)
+				keyboard_event_hhook = SetWindowsHookEx(WH_KEYBOARD_LL, keyboard_hook_event_proc, hInst, 0);
+			if (wantsAnyMouseEvents)
+				mouse_event_hhook = SetWindowsHookEx(WH_MOUSE_LL, mouse_hook_event_proc, hInst, 0);
+
+			if (wantsAnyKeyEvents && keyboard_event_hhook == NULL)
+				success = false;
+
+			if (wantsAnyMouseEvents && mouse_event_hhook == NULL)
+				success = false;
 	
 			// Check for event hook error.
-			if (keyboard_event_hhook == NULL || mouse_event_hhook == NULL) {
+			if (!success) {
 				logger(LOG_LEVEL_ERROR,	"%s [%u]: SetWindowsHookEx() failed! (%#lX)\n",
 						__FUNCTION__, __LINE__, (unsigned long) GetLastError());
 			}
@@ -637,8 +690,9 @@ void initialize_modifiers() {
 
 // FIXME Do something else with this extern DLL main call.
 extern BOOL WINAPI DllMain(HINSTANCE hInstDLL, DWORD fdwReason, LPVOID lpReserved);
-UIOHOOK_API int hook_run() {
+UIOHOOK_API int hook_run(event_type _eventsToHook) {
 	int status = UIOHOOK_FAILURE;
+	eventsToHook = _eventsToHook;
 
 	// Set the thread id we want to signal later.
 	hook_thread_id = GetCurrentThreadId();
@@ -662,9 +716,15 @@ UIOHOOK_API int hook_run() {
 		}
 	}
 
+	bool wantsAnyKeyEvents = wants_any_key_events(), wantsAnyMouseEvents = wants_any_mouse_events();
+	if (!wantsAnyKeyEvents && !wantsAnyMouseEvents)
+		return UIOHOOK_FAILURE;//...maybe?
+
 	// Create the native hooks.
-	keyboard_event_hhook = SetWindowsHookEx(WH_KEYBOARD_LL, keyboard_hook_event_proc, hInst, 0);
-	mouse_event_hhook = SetWindowsHookEx(WH_MOUSE_LL, mouse_hook_event_proc, hInst, 0);
+	if (wantsAnyKeyEvents)
+		keyboard_event_hhook = SetWindowsHookEx(WH_KEYBOARD_LL, keyboard_hook_event_proc, hInst, 0);
+	if (wantsAnyMouseEvents)
+		mouse_event_hhook = SetWindowsHookEx(WH_MOUSE_LL, mouse_hook_event_proc, hInst, 0);
 
 	// Create a window event hook to listen for capture change.
 	win_event_hhook = SetWinEventHook(
@@ -674,8 +734,15 @@ UIOHOOK_API int hook_run() {
 			0, 0, 
 			WINEVENT_OUTOFCONTEXT | WINEVENT_SKIPOWNPROCESS);
 
+	bool success = true;
+	if (wantsAnyKeyEvents && keyboard_event_hhook == NULL)
+		success = false;
+
+	if (wantsAnyMouseEvents && mouse_event_hhook == NULL)
+		success = false;
+
 	// If we did not encounter a problem, start processing events.
-	if (keyboard_event_hhook != NULL && mouse_event_hhook != NULL) {
+	if ( success ) {
 		if (win_event_hhook == NULL) {
 			logger(LOG_LEVEL_WARN,	"%s [%u]: SetWinEventHook() failed!\n",
 					__FUNCTION__, __LINE__);

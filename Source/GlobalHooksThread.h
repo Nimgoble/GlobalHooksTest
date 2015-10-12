@@ -18,7 +18,7 @@
 class GlobalHooksThread : public Thread
 {
 public:
-	GlobalHooksThread(GlobalHooksResultsCallback _threadListener);
+	GlobalHooksThread(GlobalHooksResultsCallback _threadListener, event_type _eventTypeToHook);
 	~GlobalHooksThread();
 
 	void run() override;
@@ -27,6 +27,7 @@ public:
 
 private:
 	GlobalHooksResultsCallback threadListener;
+	event_type eventTypeToHook;
 };
 
 
