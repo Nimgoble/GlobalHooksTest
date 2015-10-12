@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="Gvth7w" name="TestProject" projectType="guiapp" version="1.0.0"
+              bundleIdentifier="com.yourcompany.TestProject" includeBinaryInAppConfig="1"
+              jucerVersion="3.2.0">
+  <MAINGROUP id="pY4Jxg" name="TestProject">
+    <GROUP id="{02FAE260-72AE-50FB-656B-FF8931EC590E}" name="Source">
+      <FILE id="Ez7n9f" name="GlobalHooksHooker.cpp" compile="1" resource="0"
+            file="Source/GlobalHooksHooker.cpp"/>
+      <FILE id="F0VJm1" name="GlobalHooksHooker.h" compile="0" resource="0"
+            file="Source/GlobalHooksHooker.h"/>
+      <FILE id="WRReDD" name="GlobalHooksListener.h" compile="0" resource="0"
+            file="Source/GlobalHooksListener.h"/>
+      <FILE id="lKtraf" name="GlobalHooksThread.cpp" compile="1" resource="0"
+            file="Source/GlobalHooksThread.cpp"/>
+      <FILE id="uwcG6n" name="GlobalHooksThread.h" compile="0" resource="0"
+            file="Source/GlobalHooksThread.h"/>
+      <FILE id="K2PHYw" name="GlobalHooksManager.cpp" compile="1" resource="0"
+            file="Source/GlobalHooksManager.cpp"/>
+      <FILE id="ATlYBT" name="GlobalHooksManager.h" compile="0" resource="0"
+            file="Source/GlobalHooksManager.h"/>
+      <FILE id="lWiPEe" name="MainWindow.cpp" compile="1" resource="0" file="Source/MainWindow.cpp"/>
+      <FILE id="dDMuBe" name="MainWindow.h" compile="0" resource="0" file="Source/MainWindow.h"/>
+      <FILE id="Etmfrd" name="SoundHotKeyView.cpp" compile="1" resource="0"
+            file="Source/SoundHotKeyView.cpp"/>
+      <FILE id="eETpya" name="SoundHotKeyView.h" compile="0" resource="0"
+            file="Source/SoundHotKeyView.h"/>
+      <FILE id="ozuzqM" name="MainComponent.cpp" compile="1" resource="0"
+            file="Source/MainComponent.cpp"/>
+      <FILE id="Ybvjsp" name="MainComponent.h" compile="0" resource="0" file="Source/MainComponent.h"/>
+      <FILE id="Hxh22i" name="Main.cpp" compile="1" resource="0" file="Source/Main.cpp"/>
+    </GROUP>
+  </MAINGROUP>
+  <EXPORTFORMATS>
+    <VS2013 targetFolder="Builds/VisualStudio2013">
+      <CONFIGURATIONS>
+        <CONFIGURATION name="Debug" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="1" optimisation="1" targetName="TestProject"/>
+        <CONFIGURATION name="Release" winWarningLevel="4" generateManifest="1" winArchitecture="32-bit"
+                       isDebug="0" optimisation="3" targetName="TestProject"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_core" path="../../JUCE-master/modules"/>
+        <MODULEPATH id="juce_events" path="../../JUCE-master/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../JUCE-master/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../JUCE-master/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../JUCE-master/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../JUCE-master/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../JUCE-master/modules"/>
+        <MODULEPATH id="juce_video" path="../../JUCE-master/modules"/>
+        <MODULEPATH id="juce_opengl" path="../../JUCE-master/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../JUCE-master/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../JUCE-master/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../JUCE-master/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../JUCE-master/modules"/>
+      </MODULEPATHS>
+    </VS2013>
+  </EXPORTFORMATS>
+  <MODULES>
+    <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_audio_devices" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_audio_formats" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_audio_processors" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_core" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_cryptography" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_data_structures" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_events" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_graphics" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_gui_basics" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_gui_extra" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_opengl" showAllCode="1" useLocalCopy="0"/>
+    <MODULES id="juce_video" showAllCode="1" useLocalCopy="0"/>
+  </MODULES>
+  <JUCEOPTIONS/>
+</JUCERPROJECT>

@@ -1,0 +1,17 @@
+*.obj
+Builds/VisualStudio2013/Debug/TestProject.pdb
+*.tlog
+Builds/VisualStudio2013/Debug/vc120.pdb
+*.idb
+Builds/VisualStudio2013/TestProject.sdf
+*.suo
+Builds/VisualStudio2013/TestProject.sln
+*.exe
+Builds/VisualStudio2013/x64/Debug/TestProject.exp
+*.ilk
+Builds/VisualStudio2013/x64/Debug/TestProject.lib
+*.log
+Lib/libuiohook-Debug-x64.lib
+*.filters
+Builds/VisualStudio2013/TestProject.opensdf
+*.pdb
