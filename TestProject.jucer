@@ -19,6 +19,10 @@
       <FILE id="kKngSK" name="uiohook.h" compile="0" resource="0" file="libuiohook/uiohook.h"/>
     </GROUP>
     <GROUP id="{02FAE260-72AE-50FB-656B-FF8931EC590E}" name="Source">
+      <FILE id="AvCTTy" name="SoundHotKeyInfo.cpp" compile="1" resource="0"
+            file="Source/SoundHotKeyInfo.cpp"/>
+      <FILE id="RSknE6" name="SoundHotKeyInfo.h" compile="0" resource="0"
+            file="Source/SoundHotKeyInfo.h"/>
       <FILE id="Ez7n9f" name="GlobalHooksHooker.cpp" compile="1" resource="0"
             file="Source/GlobalHooksHooker.cpp"/>
       <FILE id="F0VJm1" name="GlobalHooksHooker.h" compile="0" resource="0"

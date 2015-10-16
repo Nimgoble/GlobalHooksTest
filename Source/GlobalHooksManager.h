@@ -85,6 +85,8 @@ private:
 	//friend struct ContainerDeletePolicy<MouseListenerList>;
 	//ScopedPointer<MouseListenerList> mouseListeners;
 	ScopedPointer<Array<KeyListener*> > keyListeners;
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GlobalHooksManager)
 };
 
 #endif  // GLOBALHOOKSMANAGER_H_INCLUDED

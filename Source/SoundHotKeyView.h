@@ -22,6 +22,7 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
+#include "SoundHotKeyInfo.h"
 //[/Headers]
 
 
@@ -38,11 +39,12 @@ class SoundHotKeyView  : public Component
 {
 public:
     //==============================================================================
-    SoundHotKeyView ();
+    SoundHotKeyView (const SoundHotKeyInfo &_info);
     ~SoundHotKeyView();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	void update(const SoundHotKeyInfo &_info);
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -59,6 +61,8 @@ private:
     ScopedPointer<Label> label;
     ScopedPointer<Label> label2;
     ScopedPointer<Label> lblHotKey;
+    ScopedPointer<Label> label3;
+    ScopedPointer<Label> lblName;
 
 
     //==============================================================================

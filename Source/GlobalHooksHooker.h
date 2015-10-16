@@ -180,6 +180,8 @@ private:
 	static event_type eventTypeToHook;
 
 	static juce::ScopedPointer<GlobalHooksThread> globalHooksThread;
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GlobalHooksHooker)
 };
 
 #endif  // GLOBALHOOKSHOOKER_H_INCLUDED

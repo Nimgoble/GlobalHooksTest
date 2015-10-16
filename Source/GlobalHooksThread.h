@@ -28,6 +28,8 @@ public:
 private:
 	GlobalHooksResultsCallback threadListener;
 	event_type eventTypeToHook;
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GlobalHooksThread)
 };
 
 

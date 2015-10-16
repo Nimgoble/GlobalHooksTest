@@ -134,6 +134,7 @@
     <ClCompile Include="..\..\libuiohook\logger.cpp"/>
     <ClCompile Include="..\..\libuiohook\post_event.cpp"/>
     <ClCompile Include="..\..\libuiohook\system_properties.cpp"/>
+    <ClCompile Include="..\..\Source\SoundHotKeyInfo.cpp"/>
     <ClCompile Include="..\..\Source\GlobalHooksHooker.cpp"/>
     <ClCompile Include="..\..\Source\GlobalHooksThread.cpp"/>
     <ClCompile Include="..\..\Source\GlobalHooksManager.cpp"/>
@@ -1262,6 +1263,7 @@
     <ClInclude Include="..\..\libuiohook\input_helper.h"/>
     <ClInclude Include="..\..\libuiohook\logger.h"/>
     <ClInclude Include="..\..\libuiohook\uiohook.h"/>
+    <ClInclude Include="..\..\Source\SoundHotKeyInfo.h"/>
     <ClInclude Include="..\..\Source\GlobalHooksHooker.h"/>
     <ClInclude Include="..\..\Source\GlobalHooksListener.h"/>
     <ClInclude Include="..\..\Source\GlobalHooksThread.h"/>

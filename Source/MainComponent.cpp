@@ -21,18 +21,24 @@
 //[/Headers]
 
 #include "MainComponent.h"
-#include "MainWindow.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
+#include "MainWindow.h"
+#include "SoundHotKeyView.h"
+
+#define COMMANDS_BASE 0x2200
 //[/MiscUserDefs]
 
 //==============================================================================
-MainComponent::MainComponent () :
-	keyMappingEditor(*MainWindow::getApplicationCommandManager().getKeyMappings(), true)
+MainComponent::MainComponent ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
+	addAndMakeVisible(menuBar = new MenuBarComponent(this));
     //[/Constructor_pre]
+
+    addAndMakeVisible (SoundHotKeyListBox = new ListBox());
+    SoundHotKeyListBox->setName ("SoundHotKey ListBox");
 
 
     //[UserPreSize]
@@ -42,15 +48,20 @@ MainComponent::MainComponent () :
 
 
     //[Constructor] You can add your own custom stuff here..
-	addAndMakeVisible(&keyMappingEditor);
+	setApplicationCommandManagerToWatch(&MainWindow::getApplicationCommandManager());
+	Command_LoadSoundHotKeyFile();
+	SoundHotKeyListBox->setModel(this);
+	SoundHotKeyListBox->setRowHeight(75);
     //[/Constructor]
 }
 
 MainComponent::~MainComponent()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
+	soundHotKeys.clear(true);
     //[/Destructor_pre]
 
+    SoundHotKeyListBox = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -74,19 +85,135 @@ void MainComponent::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
+    //SoundHotKeyListBox->setBounds (0, 0, 376, 288);
     //[UserResized] Add your own custom resize handling here..
-	keyMappingEditor.setBounds(getLocalBounds().reduced(4));
+	Rectangle<int> area(getLocalBounds());
+	menuBar->setBounds(area.removeFromTop(LookAndFeel::getDefaultLookAndFeel().getDefaultMenuBarHeight()));
+	/*area.removeFromTop(20);
+	area = area.removeFromTop(33);*/
+	SoundHotKeyListBox->setBounds(area.reduced(4));
     //[/UserResized]
-}
-
-void MainComponent::minimisationStateChanged(bool isNowMinimised)
-{
-	bool areWe = isNowMinimised;
 }
 
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
+
+int MainComponent::getNumRows() { return soundHotKeys.size(); }
+
+void MainComponent::paintListBoxItem(int rowNumber, Graphics& g, int width, int height, bool rowIsSelected)
+{
+
+}
+
+Component* MainComponent::refreshComponentForRow(int rowNumber, bool isRowSelected, Component* existingComponentToUpdate)
+{
+	jassert(existingComponentToUpdate == nullptr || dynamic_cast<SoundHotKeyView *> (existingComponentToUpdate) != nullptr);
+
+	SoundHotKeyView* comp = static_cast<SoundHotKeyView *> (existingComponentToUpdate);
+
+	int totalSounds = soundHotKeys.size();
+	if (rowNumber < 0 || rowNumber >= totalSounds)
+	{
+		if (existingComponentToUpdate != nullptr)
+		{
+			delete existingComponentToUpdate;
+			existingComponentToUpdate = nullptr;
+		}
+		return nullptr;
+	}
+
+	const SoundHotKeyInfo &info = *soundHotKeys.getUnchecked(rowNumber);
+	if (comp == nullptr)
+		comp = new SoundHotKeyView(info);
+	else
+		comp->update(info);
+
+	return comp;
+}
+
+StringArray MainComponent::getMenuBarNames()
+{
+	const char *const names[] = { "File", nullptr };
+	return StringArray(names);
+}
+
+PopupMenu MainComponent::getMenuForIndex(int menuIndex, const String& /*menuName*/)
+{
+	ApplicationCommandManager* commandManager = &MainWindow::getApplicationCommandManager();
+	PopupMenu menu;
+	//menu.addCommandItem(commandManager, )
+
+	return menu;
+}
+
+void MainComponent::menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/)
+{
+
+}
+
+void MainComponent::Command_LoadSoundHotKeyFile()
+{
+	FileChooser fc("Choose a file to open...", File::getCurrentWorkingDirectory(), "*.json", false);
+
+	if (fc.browseForFileToOpen())
+	{
+		File fileToLoad = fc.getResult();
+		LoadSoundHotKeyFile(fileToLoad);
+	}
+}
+void MainComponent::LoadSoundHotKeyFile(File &file)
+{
+	soundHotKeys.clear(true);
+
+	String jsonString = file.loadFileAsString();
+	var json;
+	Result result = JSON::parse(jsonString, json);
+	if (result.ok())
+	{
+		if (json.isArray())
+		{
+			for (int i = 0; i < json.size(); ++i)
+			{
+				var& child(json[i]);
+				if (child.isVoid())
+					continue;
+
+				SoundHotKeyInfo *info = new SoundHotKeyInfo(child);
+				info->CommandID = CommandID(COMMANDS_BASE + i);
+				soundHotKeys.add(info);
+			}
+		}
+	}
+	ApplicationCommandManager* commandManager = &MainWindow::getApplicationCommandManager();
+	commandManager->commandStatusChanged();
+}
+void MainComponent::Command_SaveSoundHotKeyFile()
+{
+	FileChooser fc("Choose a file to save...", File::getCurrentWorkingDirectory(), "*.json", false);
+
+	if (fc.browseForFileToSave(true))
+	{
+		File chosenFile = fc.getResult();
+		SaveSoundHotKeyFile(chosenFile);
+	}
+}
+void MainComponent::SaveSoundHotKeyFile(File &file)
+{
+	Array<var> children;
+	for (int i = 0; i < soundHotKeys.size(); ++i)
+	{
+		var childJSON = soundHotKeys.getUnchecked(i)->toJSON();
+		children.add(childJSON);
+	}
+	var root(children);
+	FileOutputStream *outputStream = file.createOutputStream();
+	JSON::writeToStream(*outputStream, root);
+	outputStream->flush();
+	delete outputStream;
+	outputStream = nullptr;
+}
+
 
 ApplicationCommandTarget* MainComponent::getNextCommandTarget()
 {
@@ -98,57 +225,39 @@ ApplicationCommandTarget* MainComponent::getNextCommandTarget()
 void MainComponent::getAllCommands(Array<CommandID>& commands)
 {
 	// this returns the set of all commands that this target can perform..
-	const CommandID ids[] =
+	for (int i = 0; i < soundHotKeys.size(); ++i)
 	{
-		MainComponent::CommandIDs::Command1,
-		MainComponent::CommandIDs::Command2
-	};
-
-	commands.addArray(ids, numElementsInArray(ids));
+		commands.add(CommandID(COMMANDS_BASE + i));
+	}
 }
 
 void MainComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& result)
 {
-	const String testCommandsCategory("Test Commands");
+	int id = ((int)commandID) - COMMANDS_BASE;
+	int totalCommands = soundHotKeys.size();
+	if (id < 0 || id >= totalCommands)
+		return;
 
-	switch (commandID)
+	SoundHotKeyInfo *info = soundHotKeys.getUnchecked(id);
+	result.setInfo(info->Name, juce::String::empty, juce::String::empty, 0);
+	if (info->KeyPresses.size() > 0)
 	{
-	case MainComponent::CommandIDs::Command1:
-		result.setInfo("Command 1", "Test Command 1", testCommandsCategory, 0);
-		result.addDefaultKeypress('-', ModifierKeys::ctrlModifier);
-		break;
-
-	case MainComponent::CommandIDs::Command2:
-		result.setInfo("Command 2", "Test Command 2", testCommandsCategory, 0);
-		result.addDefaultKeypress('=', ModifierKeys::ctrlModifier);
-		break;
-	default:
-		break;
+		const KeyPress &defaultKeyPress = info->KeyPresses.getUnchecked(0);
+		result.addDefaultKeypress(defaultKeyPress.getKeyCode(), defaultKeyPress.getModifiers());
 	}
 }
 
 bool MainComponent::perform(const InvocationInfo& info)
 {
-	MainWindow* mainWindow = MainWindow::getMainWindow();
+	int id = (int)info.commandID - COMMANDS_BASE;
+	int totalCommands = soundHotKeys.size();
+	if (id < 0 || id >= totalCommands)
+		return false;
 
-	if (mainWindow == nullptr)
-		return true;
-
-	int debugMe = 0;
-	switch (info.commandID)
+	SoundHotKeyInfo *shkinfo = soundHotKeys.getUnchecked(id);
+	if (shkinfo != nullptr)
 	{
-		case MainComponent::CommandIDs::Command1:
-		{
-			debugMe = 1;
-		}
-		break;
-		case MainComponent::CommandIDs::Command2:
-		{
-			debugMe = 2;
-		}
-		break;
-		default:
-			return false;
+		//Play sound here.
 	}
 
 	return true;
@@ -166,10 +275,14 @@ bool MainComponent::perform(const InvocationInfo& info)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainComponent" componentName=""
-                 parentClasses="public Component" constructorParams="" variableInitialisers=""
-                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
-                 fixedSize="0" initialWidth="600" initialHeight="400">
+                 parentClasses="public Component, public ApplicationCommandTarget, public ListBoxModel, public ChangeBroadcaster"
+                 constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
+                 snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="600"
+                 initialHeight="400">
   <BACKGROUND backgroundColour="ffffffff"/>
+  <GENERICCOMPONENT name="SoundHotKey ListBox" id="9551b420e40a1074" memberName="SoundHotKeyListBox"
+                    virtualName="" explicitFocusOrder="0" pos="0 0 376 288" class="ListBox"
+                    params=""/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

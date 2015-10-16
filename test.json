@@ -1,0 +1,112 @@
+[
+  {
+    "Name": "KeithMerrow0",
+    "SourceFile": "E:\\MediaMusic\\Keith Merrow\\Awaken the Stone King\\01-01-Merrow_From-Fathoms-BeneathThe-Awakening-pt-1.wav",
+    "KeyPresses": [
+      {
+        "KeyCode": 65632,
+        "ModifierFlags": 0,
+        "TextCharacter": 48
+      }
+    ]
+  },
+  {
+    "Name": "KeithMerrow1",
+    "SourceFile": "E:\\MediaMusic\\Keith Merrow\\Awaken the Stone King\\02-02-Merrow_Heart-of-the-Sea-Nymph.wav",
+    "KeyPresses": [
+      {
+        "KeyCode": 65633,
+        "ModifierFlags": 0,
+        "TextCharacter": 49
+      }
+    ]
+  },
+  {
+    "Name": "KeithMerrow2",
+    "SourceFile": "E:\\MediaMusic\\Keith Merrow\\Awaken the Stone King\\03-03-Merrow_The-Piscator.wav",
+    "KeyPresses": [
+      {
+        "KeyCode": 65634,
+        "ModifierFlags": 0,
+        "TextCharacter": 50
+      }
+    ]
+  },
+  {
+    "Name": "KeithMerrow3",
+    "SourceFile": "E:\\MediaMusic\\Keith Merrow\\Awaken the Stone King\\04-04-Merrow_Braving-the-Dunes.wav",
+    "KeyPresses": [
+      {
+        "KeyCode": 65635,
+        "ModifierFlags": 0,
+        "TextCharacter": 51
+      }
+    ]
+  },
+  {
+    "Name": "KeithMerrow4",
+    "SourceFile": "E:\\MediaMusic\\Keith Merrow\\Awaken the Stone King\\05-05-Merrow_Spirit-of-the-Ancient-Siren.wav",
+    "KeyPresses": [
+      {
+        "KeyCode": 65636,
+        "ModifierFlags": 0,
+        "TextCharacter": 52
+      }
+    ]
+  },
+  {
+    "Name": "KeithMerrow5",
+    "SourceFile": "E:\\MediaMusic\\Keith Merrow\\Awaken the Stone King\\06-06-Merrow_Many-a-Fortnight.wav",
+    "KeyPresses": [
+      {
+        "KeyCode": 65637,
+        "ModifierFlags": 0,
+        "TextCharacter": 53
+      }
+    ]
+  },
+  {
+    "Name": "KeithMerrow6",
+    "SourceFile": "E:\\MediaMusic\\Keith Merrow\\Awaken the Stone King\\07-07-Merrow_People-of-the-Bog.wav",
+    "KeyPresses": [
+      {
+        "KeyCode": 65638,
+        "ModifierFlags": 0,
+        "TextCharacter": 54
+      }
+    ]
+  },
+  {
+    "Name": "KeithMerrow7",
+    "SourceFile": "E:\\MediaMusic\\Keith Merrow\\Awaken the Stone King\\08-08-Merrow_Beheading-the-Manticore.wav",
+    "KeyPresses": [
+      {
+        "KeyCode": 65639,
+        "ModifierFlags": 0,
+        "TextCharacter": 55
+      }
+    ]
+  },
+  {
+    "Name": "KeithMerrow8",
+    "SourceFile": "E:\\MediaMusic\\Keith Merrow\\Awaken the Stone King\\09-09-Merrow_Paramount-Asmodeus.wav",
+    "KeyPresses": [
+      {
+        "KeyCode": 65640,
+        "ModifierFlags": 0,
+        "TextCharacter": 56
+      }
+    ]
+  },
+  {
+    "Name": "KeithMerrow9",
+    "SourceFile": "E:\\MediaMusic\\Keith Merrow\\Awaken the Stone King\\10-10-Merrow_Stone-KingThe-Awakening-pt-2.wav",
+    "KeyPresses": [
+      {
+        "KeyCode": 65641,
+        "ModifierFlags": 0,
+        "TextCharacter": 57
+      }
+    ]
+  }
+]

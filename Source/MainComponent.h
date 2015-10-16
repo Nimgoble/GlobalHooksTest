@@ -22,6 +22,7 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
+#include "SoundHotKeyInfo.h"
 //[/Headers]
 
 
@@ -34,7 +35,11 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MainComponent : public Component, public ApplicationCommandTarget
+class MainComponent  : public Component,
+                       public ApplicationCommandTarget,
+                       public ListBoxModel,
+                       public ChangeBroadcaster,
+					   public MenuBarModel
 {
 public:
     //==============================================================================
@@ -43,27 +48,43 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+
+	int getNumRows() override;
+	void paintListBoxItem(int rowNumber,
+		Graphics& g,
+		int width, int height,
+		bool rowIsSelected) override;
+
+	Component* refreshComponentForRow(int rowNumber, bool isRowSelected, Component*) override;
+
+	StringArray getMenuBarNames() override;
+	PopupMenu getMenuForIndex(int menuIndex, const String& /*menuName*/) override;
+	void menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/) override;
+
     //[/UserMethods]
 
     void paint (Graphics& g);
     void resized();
 
 
-	virtual void minimisationStateChanged(bool isNowMinimised);
-
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	juce::KeyMappingEditorComponent keyMappingEditor;
-    //[/UserVariables]
+	//juce::KeyMappingEditorComponent keyMappingEditor;
+	ScopedPointer<MenuBarComponent> menuBar;
 
-    //==============================================================================
+	juce::StringArray songs;
 
 	enum CommandIDs
 	{
-		Command1 = 0x2100,
-		Command2 = 0x2101
+		cLoadSoundHotKeyFile = 0x2100,
+		cSaveSoundHotkeyFile = 0x2101
 	};
+
+	void Command_LoadSoundHotKeyFile();
+	void LoadSoundHotKeyFile(File &file);
+	void Command_SaveSoundHotKeyFile();
+	void SaveSoundHotKeyFile(File &file);
 
 	ApplicationCommandTarget* getNextCommandTarget() override;
 
@@ -72,6 +93,13 @@ private:
 	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
 
 	bool perform(const InvocationInfo& info) override;
+
+	juce::OwnedArray<SoundHotKeyInfo> soundHotKeys;
+    //[/UserVariables]
+
+    //==============================================================================
+    ScopedPointer<ListBox> SoundHotKeyListBox;
+
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
