@@ -18,6 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "MainWindow.h"
 //[/Headers]
 
 #include "SoundHotKeyView.h"
@@ -27,10 +28,13 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-SoundHotKeyView::SoundHotKeyView (const SoundHotKeyInfo &_info)
+SoundHotKeyView::SoundHotKeyView (SoundHotKeyInfo *_info)
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	//info = _info;
+	info = _info;
+	setInterceptsMouseClicks(true, true);
+	ApplicationCommandManager &manager = MainWindow::getApplicationCommandManager();
+	keyMappingList = new KeyMappingList(manager, info);
     //[/Constructor_pre]
 
     addAndMakeVisible (lblSoundName = new Label ("Sound Name",
@@ -58,15 +62,6 @@ SoundHotKeyView::SoundHotKeyView (const SoundHotKeyInfo &_info)
     label2->setColour (TextEditor::textColourId, Colours::black);
     label2->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (lblHotKey = new Label ("Hot Key",
-                                              TRANS("Hot Key")));
-    lblHotKey->setTooltip (TRANS("The name of the sound to be played\n"));
-    lblHotKey->setFont (Font (15.00f, Font::plain));
-    lblHotKey->setJustificationType (Justification::centredLeft);
-    lblHotKey->setEditable (false, false, false);
-    lblHotKey->setColour (TextEditor::textColourId, Colours::black);
-    lblHotKey->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
-
     addAndMakeVisible (label3 = new Label ("new label",
                                            TRANS("Name:\n")));
     label3->setFont (Font (15.00f, Font::plain));
@@ -84,6 +79,9 @@ SoundHotKeyView::SoundHotKeyView (const SoundHotKeyInfo &_info)
     lblName->setColour (TextEditor::textColourId, Colours::black);
     lblName->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
+    addAndMakeVisible (keyMappingList);
+    keyMappingList->setName ("List Of Key Mappings");
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -92,7 +90,8 @@ SoundHotKeyView::SoundHotKeyView (const SoundHotKeyInfo &_info)
 
 
     //[Constructor] You can add your own custom stuff here..
-	update(_info);
+	isSelected = false;
+	update(false);
 	/*label->setColour(juce::Label::ColourIds::outlineColourId, juce::Colours::black);
 	label2->setColour(juce::Label::ColourIds::outlineColourId, juce::Colours::black);*/
     //[/Constructor]
@@ -101,15 +100,15 @@ SoundHotKeyView::SoundHotKeyView (const SoundHotKeyInfo &_info)
 SoundHotKeyView::~SoundHotKeyView()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-	//info = nullptr;
+	info = nullptr;
     //[/Destructor_pre]
 
     lblSoundName = nullptr;
     label = nullptr;
     label2 = nullptr;
-    lblHotKey = nullptr;
     label3 = nullptr;
     lblName = nullptr;
+    keyMappingList = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -130,6 +129,11 @@ void SoundHotKeyView::paint (Graphics& g)
 		getLookAndFeel().drawKeymapChangeButton(g, getWidth(), getHeight(), *this,
 			keyNum >= 0 ? getName() : String::empty);
 	}*/
+
+	juce::Colour boundsColor = (isSelected) ? Colours::blue : Colours::black;
+	float width = (isSelected) ? 2.0f : 1.0f;
+	g.setColour(boundsColor);
+	g.drawRect(getBounds(), width);
     //[/UserPaint]
 }
 
@@ -141,29 +145,41 @@ void SoundHotKeyView::resized()
     lblSoundName->setBounds (64, 24, 416, 24);
     label->setBounds (0, 24, 56, 24);
     label2->setBounds (0, 48, 56, 24);
-    lblHotKey->setBounds (64, 48, 416, 24);
     label3->setBounds (0, 0, 56, 24);
     lblName->setBounds (64, 0, 416, 24);
+    keyMappingList->setBounds (64, 48, 416, 24);
     //[UserResized] Add your own custom resize handling here..
+	Rectangle<int> area(getLocalBounds());	
+	area.removeFromLeft(64);
+	int width = area.getWidth();
+	lblName->setBounds(64, 0, width, 24);
+	lblSoundName->setBounds(64, 24, width, 24);
+	keyMappingList->setBounds(64, 48, width, 24);
     //[/UserResized]
 }
 
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-void SoundHotKeyView::update(const SoundHotKeyInfo &_info)
+void SoundHotKeyView::update(bool selected)
 {
-	lblName->setText(_info.Name, juce::NotificationType::sendNotification);
-	lblSoundName->setText(_info.SourceFile, juce::NotificationType::sendNotification);
-	String hotkeys;
+
+	isSelected = selected;
+	String name = (info == nullptr) ? String::empty : info->Name;
+	String sourceFile = (info == nullptr) ? String::empty : info->SourceFile;
+	lblName->setText(name, juce::NotificationType::sendNotification);
+	lblSoundName->setText(sourceFile, juce::NotificationType::sendNotification);
+	keyMappingList->update();
+	/*String hotkeys;
 	int numHotKeys = _info.KeyPresses.size();
 	for (int i = 0; i < numHotKeys; ++i)
 	{
+		keyMappingList->addKeyPressButton
 		hotkeys += _info.KeyPresses.getUnchecked(i).getTextDescription();
 		if (i < (numHotKeys - 1))
 			hotkeys += ", ";
-	}
-	lblHotKey->setText(hotkeys, juce::sendNotification);
+	}*/
+	//lblHotKey->setText(hotkeys, juce::sendNotification);
 }
 //[/MiscUserCode]
 
@@ -178,7 +194,7 @@ void SoundHotKeyView::update(const SoundHotKeyInfo &_info)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SoundHotKeyView" componentName=""
-                 parentClasses="public Component" constructorParams="SoundHotKeyInfo *_info"
+                 parentClasses="public Component" constructorParams="const SoundHotKeyInfo &amp;_info"
                  variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
                  overlayOpacity="0.330" fixedSize="1" initialWidth="600" initialHeight="75">
   <BACKGROUND backgroundColour="ffffffff"/>
@@ -197,11 +213,6 @@ BEGIN_JUCER_METADATA
          edBkgCol="0" labelText="Keys:&#10;" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
-  <LABEL name="Hot Key" id="f76087d55d394f8c" memberName="lblHotKey" virtualName=""
-         explicitFocusOrder="0" pos="64 48 416 24" tooltip="The name of the sound to be played&#10;"
-         edTextCol="ff000000" edBkgCol="0" labelText="Hot Key" editableSingleClick="0"
-         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
-         fontsize="15" bold="0" italic="0" justification="33"/>
   <LABEL name="new label" id="e2bc49fe0afad01b" memberName="label3" virtualName=""
          explicitFocusOrder="0" pos="0 0 56 24" edTextCol="ff000000" edBkgCol="0"
          labelText="Name:&#10;" editableSingleClick="0" editableDoubleClick="0"
@@ -212,6 +223,9 @@ BEGIN_JUCER_METADATA
          edTextCol="ff000000" edBkgCol="0" labelText="Name&#10;" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
+  <GENERICCOMPONENT name="List Of Key Mappings" id="8d8dd9199cffc638" memberName="keyMappingList"
+                    virtualName="" explicitFocusOrder="0" pos="64 48 416 24" class="KeyMappingList"
+                    params=""/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

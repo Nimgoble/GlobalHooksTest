@@ -28,8 +28,8 @@ MainWindow::MainWindow(String name) :
 
 	// this lets the command manager use keypresses that arrive in our window to send out commands
 	addKeyListener(getApplicationCommandManager().getKeyMappings());
-	GlobalHooksManager::getGlobalHooksManager().addKeyListener(getApplicationCommandManager().getKeyMappings());
-	GlobalHooksManager::getGlobalHooksManager().Init();
+	//GlobalHooksManager::getGlobalHooksManager().addKeyListener(getApplicationCommandManager().getKeyMappings());
+	//GlobalHooksManager::getGlobalHooksManager().Init();
 	//GlobalHooksManager::getGlobalHooksManager().HookRun();
 	//setContentComponent(&keyMappingEditor);
 	//addAndMakeVisible(&keyMappingEditor);
@@ -42,8 +42,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::Cleanup()
 {
-	GlobalHooksManager::getGlobalHooksManager().removeKeyListener(getApplicationCommandManager().getKeyMappings());
-	GlobalHooksManager::getGlobalHooksManager().Shutdown();
+	//GlobalHooksManager::getGlobalHooksManager().removeKeyListener(getApplicationCommandManager().getKeyMappings());
+	//GlobalHooksManager::getGlobalHooksManager().Shutdown();
 	if (applicationCommandManager != nullptr)
 		applicationCommandManager = nullptr;
 }

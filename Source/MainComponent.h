@@ -86,6 +86,8 @@ private:
 	void Command_SaveSoundHotKeyFile();
 	void SaveSoundHotKeyFile(File &file);
 
+	SoundHotKeyInfo *GetSoundHotKeyByCommandID(CommandID id);
+
 	ApplicationCommandTarget* getNextCommandTarget() override;
 
 	void getAllCommands(Array<CommandID>& commands) override;

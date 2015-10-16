@@ -49,7 +49,7 @@ MainComponent::MainComponent ()
 
     //[Constructor] You can add your own custom stuff here..
 	setApplicationCommandManagerToWatch(&MainWindow::getApplicationCommandManager());
-	Command_LoadSoundHotKeyFile();
+	//Command_LoadSoundHotKeyFile();
 	SoundHotKeyListBox->setModel(this);
 	SoundHotKeyListBox->setRowHeight(75);
     //[/Constructor]
@@ -85,12 +85,10 @@ void MainComponent::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    //SoundHotKeyListBox->setBounds (0, 0, 376, 288);
+    SoundHotKeyListBox->setBounds (0, 0, 376, 288);
     //[UserResized] Add your own custom resize handling here..
 	Rectangle<int> area(getLocalBounds());
 	menuBar->setBounds(area.removeFromTop(LookAndFeel::getDefaultLookAndFeel().getDefaultMenuBarHeight()));
-	/*area.removeFromTop(20);
-	area = area.removeFromTop(33);*/
 	SoundHotKeyListBox->setBounds(area.reduced(4));
     //[/UserResized]
 }
@@ -123,11 +121,22 @@ Component* MainComponent::refreshComponentForRow(int rowNumber, bool isRowSelect
 		return nullptr;
 	}
 
-	const SoundHotKeyInfo &info = *soundHotKeys.getUnchecked(rowNumber);
+	SoundHotKeyInfo *info = soundHotKeys.getUnchecked(rowNumber);
 	if (comp == nullptr)
 		comp = new SoundHotKeyView(info);
+	else if (info != comp->getSoundHotKeyInfo())
+	{
+		//This is goofy.  We can can an existing component that wasn't made for this particular row.
+		//Just scrub it and make a new one.
+		if (existingComponentToUpdate != nullptr)
+		{
+			delete existingComponentToUpdate;
+			existingComponentToUpdate = nullptr;
+		}
+		comp = new SoundHotKeyView(info);
+	}
 	else
-		comp->update(info);
+		comp->update(isRowSelected);
 
 	return comp;
 }
@@ -142,7 +151,8 @@ PopupMenu MainComponent::getMenuForIndex(int menuIndex, const String& /*menuName
 {
 	ApplicationCommandManager* commandManager = &MainWindow::getApplicationCommandManager();
 	PopupMenu menu;
-	//menu.addCommandItem(commandManager, )
+	menu.addCommandItem(commandManager, CommandIDs::cLoadSoundHotKeyFile, "Load File");
+	menu.addCommandItem(commandManager, CommandIDs::cSaveSoundHotkeyFile, "Save File");
 
 	return menu;
 }
@@ -164,7 +174,20 @@ void MainComponent::Command_LoadSoundHotKeyFile()
 }
 void MainComponent::LoadSoundHotKeyFile(File &file)
 {
+	ApplicationCommandManager* commandManager = &MainWindow::getApplicationCommandManager();
+
+	//Remove all of the old commands
+	for (int i = 0; i < soundHotKeys.size(); ++i)
+	{
+		SoundHotKeyInfo *info = soundHotKeys.getUnchecked(i);
+		if (info == nullptr)
+			continue;
+
+		commandManager->removeCommand(info->CommandID);
+	}
+	//SoundHotKeyListBox->deleteAllChildren();
 	soundHotKeys.clear(true);
+	SoundHotKeyListBox->updateContent();
 
 	String jsonString = file.loadFileAsString();
 	var json;
@@ -182,11 +205,14 @@ void MainComponent::LoadSoundHotKeyFile(File &file)
 				SoundHotKeyInfo *info = new SoundHotKeyInfo(child);
 				info->CommandID = CommandID(COMMANDS_BASE + i);
 				soundHotKeys.add(info);
+
+				//Add the new command
+				commandManager->registerCommand(info->getApplicationCommandInfo());
 			}
 		}
 	}
-	ApplicationCommandManager* commandManager = &MainWindow::getApplicationCommandManager();
-	commandManager->commandStatusChanged();
+	SoundHotKeyListBox->updateContent();
+	//SoundHotKeyListBox->repaint();
 }
 void MainComponent::Command_SaveSoundHotKeyFile()
 {
@@ -208,10 +234,22 @@ void MainComponent::SaveSoundHotKeyFile(File &file)
 	}
 	var root(children);
 	FileOutputStream *outputStream = file.createOutputStream();
+	outputStream->setPosition(0);
 	JSON::writeToStream(*outputStream, root);
 	outputStream->flush();
 	delete outputStream;
 	outputStream = nullptr;
+}
+
+SoundHotKeyInfo *MainComponent::GetSoundHotKeyByCommandID(CommandID id)
+{
+	for (int i = 0; i < soundHotKeys.size(); ++i)
+	{
+		SoundHotKeyInfo *info = soundHotKeys.getUnchecked(i);
+		if (info->CommandID == id)
+			return info;
+	}
+	return nullptr;
 }
 
 
@@ -224,6 +262,8 @@ ApplicationCommandTarget* MainComponent::getNextCommandTarget()
 
 void MainComponent::getAllCommands(Array<CommandID>& commands)
 {
+	commands.add(CommandID(CommandIDs::cLoadSoundHotKeyFile));
+	commands.add(CommandID(CommandIDs::cSaveSoundHotkeyFile));
 	// this returns the set of all commands that this target can perform..
 	for (int i = 0; i < soundHotKeys.size(); ++i)
 	{
@@ -233,35 +273,45 @@ void MainComponent::getAllCommands(Array<CommandID>& commands)
 
 void MainComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& result)
 {
-	int id = ((int)commandID) - COMMANDS_BASE;
-	int totalCommands = soundHotKeys.size();
-	if (id < 0 || id >= totalCommands)
-		return;
-
-	SoundHotKeyInfo *info = soundHotKeys.getUnchecked(id);
-	result.setInfo(info->Name, juce::String::empty, juce::String::empty, 0);
-	if (info->KeyPresses.size() > 0)
+	switch (commandID)
 	{
-		const KeyPress &defaultKeyPress = info->KeyPresses.getUnchecked(0);
-		result.addDefaultKeypress(defaultKeyPress.getKeyCode(), defaultKeyPress.getModifiers());
+	case CommandIDs::cLoadSoundHotKeyFile:
+		result.setInfo("Load File", "Load a Sound Hotkey File", juce::String::empty, 0);
+		result.addDefaultKeypress('L', juce::ModifierKeys::ctrlModifier);
+		break;
+	case CommandIDs::cSaveSoundHotkeyFile:
+		result.setInfo("Save File", "Save the current configuration to a file.", juce::String::empty, 0);
+		result.addDefaultKeypress('S', juce::ModifierKeys::ctrlModifier);
+		break;
+	default:
+		SoundHotKeyInfo *info = GetSoundHotKeyByCommandID(commandID);
+		if (info == nullptr)
+			return;
+
+		result = info->getApplicationCommandInfo();
 	}
 }
 
 bool MainComponent::perform(const InvocationInfo& info)
 {
-	int id = (int)info.commandID - COMMANDS_BASE;
-	int totalCommands = soundHotKeys.size();
-	if (id < 0 || id >= totalCommands)
-		return false;
-
-	SoundHotKeyInfo *shkinfo = soundHotKeys.getUnchecked(id);
-	if (shkinfo != nullptr)
+	switch (info.commandID)
 	{
+	case CommandIDs::cLoadSoundHotKeyFile:
+		Command_LoadSoundHotKeyFile();
+		break;
+	case CommandIDs::cSaveSoundHotkeyFile:
+		Command_SaveSoundHotKeyFile();
+		break;
+	default:
+		SoundHotKeyInfo *_info = GetSoundHotKeyByCommandID(info.commandID);
+		if (_info == nullptr)
+			return false;
+
 		//Play sound here.
 	}
 
 	return true;
-	}
+}
 //[/MiscUserCode]
 
 

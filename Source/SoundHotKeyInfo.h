@@ -23,6 +23,11 @@ public:
 		SourceFile = "";
 	}
 
+	~SoundHotKeyInfo()
+	{
+		masterReference.clear();
+	}
+
 	SoundHotKeyInfo(var json)
 	{
 		DynamicObject* obj = json.getDynamicObject();
@@ -48,7 +53,7 @@ public:
 				int modifierFlags = (int)jsonKeyPressObj->getProperty("ModifierFlags");
 				juce::juce_wchar textCharacter = (juce_wchar)((int)jsonKeyPressObj->getProperty("TextCharacter"));
 				ModifierKeys modifierKeys;
-				modifierKeys.withFlags(modifierFlags);
+				modifierKeys = modifierKeys.withFlags(modifierFlags);
 				KeyPress keyPress(keyCode, modifierKeys, textCharacter);
 				KeyPresses.add(keyPress);
 			}
@@ -77,18 +82,30 @@ public:
 		return var(root);
 	}
 
+	ApplicationCommandInfo getApplicationCommandInfo()
+	{
+		ApplicationCommandInfo commandInfo(CommandID);
+		commandInfo.setInfo(Name, juce::String::empty, juce::String::empty, 0);
+		if (KeyPresses.size() > 0)
+		{
+			const KeyPress &defaultKeyPress = KeyPresses.getUnchecked(0);
+			commandInfo.addDefaultKeypress(defaultKeyPress.getKeyCode(), defaultKeyPress.getModifiers());
+		}
+
+		return commandInfo;
+	}
+
 	juce::CommandID CommandID;
     //A name for this particular file/keypress set
     juce::String Name;
     //The location of the sound file to play
     juce::String SourceFile;
     //Hotkey mappings
-	//const OwnedArray<KeyPress> &GetKeyPresses(){ return KeyPresses; }
-	/*void AddKeyPress(KeyPress *keyPress){ KeyPresses.add(keyPress); }
-	KeyPress *GetKeyPress(int index){ return KeyPresses.getUnchecked(index); }
-	int NumberOfKeyPresses(){ return KeyPresses.size(); }*/
-//private:
     Array<KeyPress> KeyPresses;
+
+private:
+	WeakReference<SoundHotKeyInfo>::Master masterReference;
+	friend class WeakReference<SoundHotKeyInfo>;
 
 	JUCE_LEAK_DETECTOR(SoundHotKeyInfo)
 };
