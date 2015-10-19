@@ -19,6 +19,14 @@
       <FILE id="kKngSK" name="uiohook.h" compile="0" resource="0" file="libuiohook/uiohook.h"/>
     </GROUP>
     <GROUP id="{02FAE260-72AE-50FB-656B-FF8931EC590E}" name="Source">
+      <FILE id="RbRXSw" name="SoundHotKeyConfigFile.cpp" compile="1" resource="0"
+            file="Source/SoundHotKeyConfigFile.cpp"/>
+      <FILE id="tKmTVO" name="SoundHotKeyConfigFile.h" compile="0" resource="0"
+            file="Source/SoundHotKeyConfigFile.h"/>
+      <FILE id="NsyCSD" name="SoundHotKeyInfoContainer.cpp" compile="1" resource="0"
+            file="Source/SoundHotKeyInfoContainer.cpp"/>
+      <FILE id="IYw2A5" name="SoundHotKeyInfoContainer.h" compile="0" resource="0"
+            file="Source/SoundHotKeyInfoContainer.h"/>
       <FILE id="wNqKZj" name="SoundInfoOperationsListener.h" compile="0"
             resource="0" file="Source/SoundInfoOperationsListener.h"/>
       <FILE id="nSeOkM" name="ChangeKeyButton.cpp" compile="1" resource="0"
