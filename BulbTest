@@ -1,0 +1,24 @@
+[
+  {
+    "Name": "01 1005281 - Have A Blast.mp3",
+    "SourceFile": "E:\\Media\\Music\\BULB\\01 1005281 - Have A Blast.mp3",
+    "KeyPresses": [
+      {
+        "KeyCode": 80,
+        "ModifierFlags": 2,
+        "TextCharacter": 0
+      }
+    ]
+  },
+  {
+    "Name": "02 0911101 - Mr. Person.mp3",
+    "SourceFile": "E:\\Media\\Music\\BULB\\02 0911101 - Mr. Person.mp3",
+    "KeyPresses": [
+      {
+        "KeyCode": 65632,
+        "ModifierFlags": 0,
+        "TextCharacter": 48
+      }
+    ]
+  }
+]

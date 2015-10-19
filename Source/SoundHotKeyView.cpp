@@ -28,10 +28,11 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-SoundHotKeyView::SoundHotKeyView (SoundHotKeyInfo *_info)
+SoundHotKeyView::SoundHotKeyView (SoundInfoOperationsListener *_listener, SoundHotKeyInfo *_info)
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	info = _info;
+	listener = _listener;
 	setInterceptsMouseClicks(true, true);
 	ApplicationCommandManager &manager = MainWindow::getApplicationCommandManager();
 	keyMappingList = new KeyMappingList(manager, info);
@@ -79,8 +80,11 @@ SoundHotKeyView::SoundHotKeyView (SoundHotKeyInfo *_info)
     lblName->setColour (TextEditor::textColourId, Colours::black);
     lblName->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (keyMappingList);
-    keyMappingList->setName ("List Of Key Mappings");
+    addAndMakeVisible (btnRemove = new TextButton ("Removal Button"));
+    btnRemove->setTooltip (TRANS("Removes the current sound from the configuration\n"));
+    btnRemove->setButtonText (TRANS("X"));
+    btnRemove->setConnectedEdges (Button::ConnectedOnLeft | Button::ConnectedOnTop);
+    btnRemove->addListener (this);
 
 
     //[UserPreSize]
@@ -90,6 +94,8 @@ SoundHotKeyView::SoundHotKeyView (SoundHotKeyInfo *_info)
 
 
     //[Constructor] You can add your own custom stuff here..
+	addAndMakeVisible(keyMappingList);
+	keyMappingList->setName("List Of Key Mappings");
 	isSelected = false;
 	update(false);
 	/*label->setColour(juce::Label::ColourIds::outlineColourId, juce::Colours::black);
@@ -109,6 +115,7 @@ SoundHotKeyView::~SoundHotKeyView()
     label3 = nullptr;
     lblName = nullptr;
     keyMappingList = nullptr;
+    btnRemove = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -142,20 +149,37 @@ void SoundHotKeyView::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    lblSoundName->setBounds (64, 24, 416, 24);
-    label->setBounds (0, 24, 56, 24);
-    label2->setBounds (0, 48, 56, 24);
-    label3->setBounds (0, 0, 56, 24);
-    lblName->setBounds (64, 0, 416, 24);
-    keyMappingList->setBounds (64, 48, 416, 24);
+    lblSoundName->setBounds (88, 24, 416, 24);
+    label->setBounds (24, 24, 56, 24);
+    label2->setBounds (24, 48, 56, 24);
+    label3->setBounds (24, 0, 56, 24);
+    lblName->setBounds (88, 0, 416, 24);
+    keyMappingList->setBounds (88, 48, 416, 24);
+    btnRemove->setBounds (0, 0, 24, 24);
     //[UserResized] Add your own custom resize handling here..
-	Rectangle<int> area(getLocalBounds());	
+	Rectangle<int> area(getLocalBounds());
 	area.removeFromLeft(64);
 	int width = area.getWidth();
 	lblName->setBounds(64, 0, width, 24);
 	lblSoundName->setBounds(64, 24, width, 24);
 	keyMappingList->setBounds(64, 48, width, 24);
     //[/UserResized]
+}
+
+void SoundHotKeyView::buttonClicked (Button* buttonThatWasClicked)
+{
+    //[UserbuttonClicked_Pre]
+    //[/UserbuttonClicked_Pre]
+
+    if (buttonThatWasClicked == btnRemove)
+    {
+        //[UserButtonCode_btnRemove] -- add your button handler code here..
+		listener->RemoveInfo(info);
+        //[/UserButtonCode_btnRemove]
+    }
+
+    //[UserbuttonClicked_Post]
+    //[/UserbuttonClicked_Post]
 }
 
 
@@ -194,38 +218,41 @@ void SoundHotKeyView::update(bool selected)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SoundHotKeyView" componentName=""
-                 parentClasses="public Component" constructorParams="const SoundHotKeyInfo &amp;_info"
+                 parentClasses="public Component" constructorParams="SoundInfoOperationsListener *listener, SoundHotKeyInfo *_info"
                  variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
                  overlayOpacity="0.330" fixedSize="1" initialWidth="600" initialHeight="75">
   <BACKGROUND backgroundColour="ffffffff"/>
   <LABEL name="Sound Name" id="86c88e3f451a529d" memberName="lblSoundName"
-         virtualName="" explicitFocusOrder="0" pos="64 24 416 24" tooltip="The name of the sound to be played&#10;"
+         virtualName="" explicitFocusOrder="0" pos="88 24 416 24" tooltip="The name of the sound to be played&#10;"
          edTextCol="ff000000" edBkgCol="0" labelText="Sound Name&#10;"
          editableSingleClick="0" editableDoubleClick="0" focusDiscardsChanges="0"
          fontname="Default font" fontsize="15" bold="0" italic="0" justification="33"/>
   <LABEL name="new label" id="77b34494e0b0f430" memberName="label" virtualName=""
-         explicitFocusOrder="0" pos="0 24 56 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="24 24 56 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Sound:&#10;" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <LABEL name="new label" id="2f546040ef7989e3" memberName="label2" virtualName=""
-         explicitFocusOrder="0" pos="0 48 56 24" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="24 48 56 24" edTextCol="ff000000"
          edBkgCol="0" labelText="Keys:&#10;" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
   <LABEL name="new label" id="e2bc49fe0afad01b" memberName="label3" virtualName=""
-         explicitFocusOrder="0" pos="0 0 56 24" edTextCol="ff000000" edBkgCol="0"
-         labelText="Name:&#10;" editableSingleClick="0" editableDoubleClick="0"
+         explicitFocusOrder="0" pos="24 0 56 24" edTextCol="ff000000"
+         edBkgCol="0" labelText="Name:&#10;" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="15"
          bold="0" italic="0" justification="33"/>
   <LABEL name="Name" id="58e24e66b8fe83d8" memberName="lblName" virtualName=""
-         explicitFocusOrder="0" pos="64 0 416 24" tooltip="The name of the sound to be played&#10;"
+         explicitFocusOrder="0" pos="88 0 416 24" tooltip="The name of the sound to be played&#10;"
          edTextCol="ff000000" edBkgCol="0" labelText="Name&#10;" editableSingleClick="0"
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="15" bold="0" italic="0" justification="33"/>
   <GENERICCOMPONENT name="List Of Key Mappings" id="8d8dd9199cffc638" memberName="keyMappingList"
-                    virtualName="" explicitFocusOrder="0" pos="64 48 416 24" class="KeyMappingList"
+                    virtualName="" explicitFocusOrder="0" pos="88 48 416 24" class="KeyMappingList"
                     params=""/>
+  <TEXTBUTTON name="Removal Button" id="23d6a364c662b5d" memberName="btnRemove"
+              virtualName="" explicitFocusOrder="0" pos="0 0 24 24" tooltip="Removes the current sound from the configuration&#10;"
+              buttonText="X" connectedEdges="5" needsCallback="1" radioGroupId="0"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

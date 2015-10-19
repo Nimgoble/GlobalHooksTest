@@ -17,13 +17,11 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_5541AB09C63B7428__
-#define __JUCE_HEADER_5541AB09C63B7428__
+#ifndef __JUCE_HEADER_8A6E8F29924344__
+#define __JUCE_HEADER_8A6E8F29924344__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
-#include "SoundHotKeyInfo.h"
-#include "KeyMappingList.h"
 #include "SoundInfoOperationsListener.h"
 //[/Headers]
 
@@ -37,48 +35,46 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class SoundHotKeyView  : public Component,
-                         public ButtonListener
+class SoundFileDragAndDropTarget  : public Component,
+                                    public FileDragAndDropTarget
 {
 public:
     //==============================================================================
-    SoundHotKeyView (SoundInfoOperationsListener *listener, SoundHotKeyInfo *_info);
-    ~SoundHotKeyView();
+    SoundFileDragAndDropTarget (SoundInfoOperationsListener *_listener);
+    ~SoundFileDragAndDropTarget();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
-	void update(bool selected);
-	const SoundHotKeyInfo *getSoundHotKeyInfo(){ return info; }
+
+	bool isInterestedInFileDrag(const StringArray& files) override;
+	void filesDropped(const StringArray& files, int x, int y) override;
+	void fileDragEnter(const StringArray& files, int x, int y) override;
+	void fileDragExit(const StringArray& files) override;
+	void mouseDoubleClick(const MouseEvent& event) override;
     //[/UserMethods]
 
     void paint (Graphics& g);
     void resized();
-    void buttonClicked (Button* buttonThatWasClicked);
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	SoundInfoOperationsListener *listener;
-	bool isSelected;
-	WeakReference<SoundHotKeyInfo> info;
+	StringArray supportedAudioFormats;
+	Colour backgroundColor;
+	const Colour defaultBackgroundColor = Colours::aliceblue;
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<Label> lblSoundName;
     ScopedPointer<Label> label;
-    ScopedPointer<Label> label2;
-    ScopedPointer<Label> label3;
-    ScopedPointer<Label> lblName;
-    ScopedPointer<KeyMappingList> keyMappingList;
-    ScopedPointer<TextButton> btnRemove;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SoundHotKeyView)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SoundFileDragAndDropTarget)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_5541AB09C63B7428__
+#endif   // __JUCE_HEADER_8A6E8F29924344__

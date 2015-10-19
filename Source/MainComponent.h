@@ -23,6 +23,8 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "SoundHotKeyInfo.h"
+#include "SoundFileDragAndDropTarget.h"
+#include "SoundInfoOperationsListener.h"
 //[/Headers]
 
 
@@ -39,7 +41,8 @@ class MainComponent  : public Component,
                        public ApplicationCommandTarget,
                        public ListBoxModel,
                        public ChangeBroadcaster,
-					   public MenuBarModel
+                       public MenuBarModel,
+                       public SoundInfoOperationsListener
 {
 public:
     //==============================================================================
@@ -61,6 +64,9 @@ public:
 	PopupMenu getMenuForIndex(int menuIndex, const String& /*menuName*/) override;
 	void menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/) override;
 
+
+	void CreateInfoFromFile(const String &file) override;
+	void RemoveInfo(SoundHotKeyInfo *info) override;
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -96,11 +102,14 @@ private:
 
 	bool perform(const InvocationInfo& info) override;
 
+	CommandID getNextCommandID();
+
 	juce::OwnedArray<SoundHotKeyInfo> soundHotKeys;
     //[/UserVariables]
 
     //==============================================================================
     ScopedPointer<ListBox> SoundHotKeyListBox;
+    ScopedPointer<SoundFileDragAndDropTarget> soundFileDragAndDropTarget;
 
 
     //==============================================================================

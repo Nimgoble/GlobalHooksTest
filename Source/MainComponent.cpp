@@ -40,6 +40,9 @@ MainComponent::MainComponent ()
     addAndMakeVisible (SoundHotKeyListBox = new ListBox());
     SoundHotKeyListBox->setName ("SoundHotKey ListBox");
 
+    addAndMakeVisible (soundFileDragAndDropTarget = new SoundFileDragAndDropTarget (this));
+    soundFileDragAndDropTarget->setName ("Sound File DragAndDrop Target");
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -62,6 +65,7 @@ MainComponent::~MainComponent()
     //[/Destructor_pre]
 
     SoundHotKeyListBox = nullptr;
+    soundFileDragAndDropTarget = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -85,11 +89,15 @@ void MainComponent::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    SoundHotKeyListBox->setBounds (0, 0, 376, 288);
+    SoundHotKeyListBox->setBounds (0, 80, 376, 288);
+    soundFileDragAndDropTarget->setBounds (0, 0, 376, 80);
     //[UserResized] Add your own custom resize handling here..
 	Rectangle<int> area(getLocalBounds());
-	menuBar->setBounds(area.removeFromTop(LookAndFeel::getDefaultLookAndFeel().getDefaultMenuBarHeight()));
+	int menuBarHeight = LookAndFeel::getDefaultLookAndFeel().getDefaultMenuBarHeight();
+	menuBar->setBounds(area.removeFromTop(menuBarHeight));
+	soundFileDragAndDropTarget->setBounds(area.removeFromTop(80));
 	SoundHotKeyListBox->setBounds(area.reduced(4));
+	soundFileDragAndDropTarget->repaint();
     //[/UserResized]
 }
 
@@ -123,7 +131,7 @@ Component* MainComponent::refreshComponentForRow(int rowNumber, bool isRowSelect
 
 	SoundHotKeyInfo *info = soundHotKeys.getUnchecked(rowNumber);
 	if (comp == nullptr)
-		comp = new SoundHotKeyView(info);
+		comp = new SoundHotKeyView(this, info);
 	else if (info != comp->getSoundHotKeyInfo())
 	{
 		//This is goofy.  We can can an existing component that wasn't made for this particular row.
@@ -133,7 +141,7 @@ Component* MainComponent::refreshComponentForRow(int rowNumber, bool isRowSelect
 			delete existingComponentToUpdate;
 			existingComponentToUpdate = nullptr;
 		}
-		comp = new SoundHotKeyView(info);
+		comp = new SoundHotKeyView(this, info);
 	}
 	else
 		comp->update(isRowSelected);
@@ -160,6 +168,28 @@ PopupMenu MainComponent::getMenuForIndex(int menuIndex, const String& /*menuName
 void MainComponent::menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/)
 {
 
+}
+
+void MainComponent::CreateInfoFromFile(const String &file)
+{
+	File actualFile(file);
+	SoundHotKeyInfo *info = new SoundHotKeyInfo();
+	info->CommandID = getNextCommandID();
+	info->Name = actualFile.getFileName();
+	info->SourceFile = file;
+	int newRowIndex = soundHotKeys.size();
+	soundHotKeys.add(info);
+	SoundHotKeyListBox->updateContent();
+	SoundHotKeyListBox->scrollToEnsureRowIsOnscreen(newRowIndex);
+	MainWindow::getApplicationCommandManager().registerCommand(info->getApplicationCommandInfo());
+}
+
+void MainComponent::RemoveInfo(SoundHotKeyInfo *info)
+{
+
+	MainWindow::getApplicationCommandManager().removeCommand(info->CommandID);
+	soundHotKeys.removeObject(info, true);
+	SoundHotKeyListBox->updateContent();
 }
 
 void MainComponent::Command_LoadSoundHotKeyFile()
@@ -312,6 +342,22 @@ bool MainComponent::perform(const InvocationInfo& info)
 
 	return true;
 }
+
+CommandID MainComponent::getNextCommandID()
+{
+	if (soundHotKeys.size() == 0)
+		return CommandID(COMMANDS_BASE);
+
+	CommandID highest(COMMANDS_BASE);
+	for (int i = 0; i < soundHotKeys.size(); ++i)
+	{
+		CommandID current = soundHotKeys.getUnchecked(i)->CommandID;
+		if (highest < current)
+			highest = current;
+	}
+
+	return CommandID(highest + 1);
+}
 //[/MiscUserCode]
 
 
@@ -325,14 +371,17 @@ bool MainComponent::perform(const InvocationInfo& info)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="MainComponent" componentName=""
-                 parentClasses="public Component, public ApplicationCommandTarget, public ListBoxModel, public ChangeBroadcaster"
+                 parentClasses="public Component, public ApplicationCommandTarget, public ListBoxModel, public ChangeBroadcaster, public MenuBarModel, public SoundInfoOperationsListener"
                  constructorParams="" variableInitialisers="" snapPixels="8" snapActive="1"
                  snapShown="1" overlayOpacity="0.330" fixedSize="0" initialWidth="600"
                  initialHeight="400">
   <BACKGROUND backgroundColour="ffffffff"/>
   <GENERICCOMPONENT name="SoundHotKey ListBox" id="9551b420e40a1074" memberName="SoundHotKeyListBox"
-                    virtualName="" explicitFocusOrder="0" pos="0 0 376 288" class="ListBox"
+                    virtualName="" explicitFocusOrder="0" pos="0 80 376 288" class="ListBox"
                     params=""/>
+  <GENERICCOMPONENT name="Sound File DragAndDrop Target" id="1bec592c5b8f0acb" memberName="soundFileDragAndDropTarget"
+                    virtualName="" explicitFocusOrder="0" pos="0 0 376 80" class="SoundFileDragAndDropTarget"
+                    params="this"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

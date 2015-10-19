@@ -19,6 +19,20 @@
       <FILE id="kKngSK" name="uiohook.h" compile="0" resource="0" file="libuiohook/uiohook.h"/>
     </GROUP>
     <GROUP id="{02FAE260-72AE-50FB-656B-FF8931EC590E}" name="Source">
+      <FILE id="wNqKZj" name="SoundInfoOperationsListener.h" compile="0"
+            resource="0" file="Source/SoundInfoOperationsListener.h"/>
+      <FILE id="nSeOkM" name="ChangeKeyButton.cpp" compile="1" resource="0"
+            file="Source/ChangeKeyButton.cpp"/>
+      <FILE id="EI7X1s" name="ChangeKeyButton.h" compile="0" resource="0"
+            file="Source/ChangeKeyButton.h"/>
+      <FILE id="fXvzD0" name="KeyMappingList.cpp" compile="1" resource="0"
+            file="Source/KeyMappingList.cpp"/>
+      <FILE id="BAWoOH" name="KeyMappingList.h" compile="0" resource="0"
+            file="Source/KeyMappingList.h"/>
+      <FILE id="EzbBxL" name="SoundFileDragAndDropTarget.cpp" compile="1"
+            resource="0" file="Source/SoundFileDragAndDropTarget.cpp"/>
+      <FILE id="pTgMNX" name="SoundFileDragAndDropTarget.h" compile="0" resource="0"
+            file="Source/SoundFileDragAndDropTarget.h"/>
       <FILE id="AvCTTy" name="SoundHotKeyInfo.cpp" compile="1" resource="0"
             file="Source/SoundHotKeyInfo.cpp"/>
       <FILE id="RSknE6" name="SoundHotKeyInfo.h" compile="0" resource="0"
