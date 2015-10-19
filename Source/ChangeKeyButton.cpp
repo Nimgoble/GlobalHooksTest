@@ -17,6 +17,7 @@ ChangeKeyButton::ChangeKeyButton(ChangeKeyListener *_listener, KeyPress keyPress
 	listener(_listener),
 	keyNum(keyIndex)
 {
+	this->keyPress = keyPress;
 	setWantsKeyboardFocus(false);
 	setTriggeredOnMouseDown(keyNum >= 0);
 
@@ -27,7 +28,7 @@ ChangeKeyButton::ChangeKeyButton(ChangeKeyListener *_listener, KeyPress keyPress
 void ChangeKeyButton::paintButton(Graphics& g, bool /*isOver*/, bool /*isDown*/)
 {
 	getLookAndFeel().drawKeymapChangeButton(g, getWidth(), getHeight(), *this,
-		keyNum >= 0 ? getName() : String::empty);
+		keyNum >= 0 ? keyPress.getTextDescription() : String::empty);
 }
 
 void ChangeKeyButton::menuCallback(int result, ChangeKeyButton* button)
@@ -141,6 +142,7 @@ void ChangeKeyButton::setNewKey(const KeyPress& newKey, bool dontAskUser)
 			listener->OnKeyAdded(newKey, keyNum);
 
 		keyPress = newKey;
+		setName(keyPress.getTextDescription());
 	}
 }
 

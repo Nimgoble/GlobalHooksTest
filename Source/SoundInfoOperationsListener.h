@@ -18,7 +18,7 @@ class SoundInfoOperationsListener
 {
 public:
 	virtual void CreateInfoFromFile(const String &file) = 0;
-	virtual void RemoveInfo(SoundHotKeyInfo *info) = 0;
+	virtual void RemoveInfo(CommandID id) = 0;
 };
 
 

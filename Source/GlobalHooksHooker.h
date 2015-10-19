@@ -93,11 +93,36 @@ public:
 			GlobalHooksLock lock(GlobalHooksHooker::HookMutex);	
 
 			const juce_wchar textCharacter = event->data.keyboard.keychar;
+
+			int key = event->data.keyboard.keychar;
+			int virtualScanCode = event->data.keyboard.keycode;
+
+			if (key >= '0' && key <= '9')
+			{
+				switch (virtualScanCode)  // check for a numeric keypad scan-code
+				{
+				case 0x52:
+				case 0x4f:
+				case 0x50:
+				case 0x51:
+				case 0x4b:
+				case 0x4c:
+				case 0x4d:
+				case 0x47:
+				case 0x48:
+				case 0x49:
+					key = (key - '0') + KeyPress::numberPad0;
+					break;
+				default:
+					break;
+				}
+			}
+
 			const juce::KeyPress keyInfo
 			(
-				(int)event->data.keyboard.keychar,
+				key,
 				GetJUCEModifierKeysFromEvent(event),
-				0
+				textCharacter
 			);
 
 			for (int i = HooksListeners.size(); --i >= 0;)

@@ -14,17 +14,17 @@
 
 //==============================================================================
 
-KeyMappingList::KeyMappingList(ApplicationCommandManager& _commandManager, SoundHotKeyInfo *_info)
-	: commandManager(_commandManager), info(_info)
+KeyMappingList::KeyMappingList(ApplicationCommandManager& _commandManager, SoundHotKeyInfoContainer *_container)
+	: commandManager(_commandManager), container(_container)
 {
 	setInterceptsMouseClicks(false, true);
 
 	update();
 
-	if (info != nullptr)
+	if (container != nullptr)
 	{
-		for (int i = 0; i < info->KeyPresses.size(); ++i)
-			addKeyPressButton(i, info->KeyPresses.getReference(i), false);
+		for (int i = 0; i < container->GetSoundHotKeyInfo().KeyPresses.size(); ++i)
+			addKeyPressButton(i, container->GetSoundHotKeyInfo().KeyPresses.getReference(i), false);
 	}
 	addKeyButton = nullptr;
 	addKeyPressButton(-1, KeyPress(-1), false);
@@ -34,7 +34,7 @@ KeyMappingList::~KeyMappingList()
 {
 	addKeyButton = nullptr;
 	keyChangeButtons.clear(true);
-	info = nullptr;
+	container = nullptr;
 }
 
 void KeyMappingList::addKeyPressButton(int keyNum, const KeyPress &keyPress, const bool isReadOnly)
@@ -97,28 +97,26 @@ void KeyMappingList::update()
 
 void KeyMappingList::OnKeyAdded(const KeyPress &newKeyPress, int keyIndex)
 {
-	if (info == nullptr)
+	if (container == nullptr)
 		return;
 
-	commandManager.getKeyMappings()->addKeyPress(info->CommandID, newKeyPress, keyIndex);
-	info->KeyPresses.add(newKeyPress);
-	addKeyPressButton(info->KeyPresses.indexOf(newKeyPress), newKeyPress, false);
+	container->AddKeyPress(newKeyPress);
+	addKeyPressButton(container->GetSoundHotKeyInfo().KeyPresses.indexOf(newKeyPress), newKeyPress, false);
 	
 }
 void KeyMappingList::OnKeyRemoved(ChangeKeyButton *button, const KeyPress &keyPress, int keyIndex)
 {
-	if (info == nullptr)
+	if (container == nullptr)
 		return;
 
-	commandManager.getKeyMappings()->removeKeyPress(info->CommandID, keyPress.getKeyCode());
-	info->KeyPresses.removeFirstMatchingValue(keyPress);
+	container->RemoveKeyPress(keyPress);
 	removeChildComponent(button);
 	keyChangeButtons.removeObject(button, true);
 }
 
 void KeyMappingList::OnKeyChanged(const KeyPress &oldKeyPress, const KeyPress &newKeyPress, int keyIndex)
 {
-	if (info == nullptr)
+	if (container == nullptr)
 		return;
 
 	const CommandID previousCommand = commandManager.getKeyMappings()->findCommandForKeyPress(newKeyPress);
@@ -127,10 +125,9 @@ void KeyMappingList::OnKeyChanged(const KeyPress &oldKeyPress, const KeyPress &n
 	{
 		commandManager.getKeyMappings()->removeKeyPress(newKeyPress);
 
-		commandManager.getKeyMappings()->removeKeyPress(info->CommandID, oldKeyPress.getKeyCode());
-		info->KeyPresses.removeFirstMatchingValue(oldKeyPress);
-		commandManager.getKeyMappings()->addKeyPress(info->CommandID, newKeyPress, keyIndex);
-		info->KeyPresses.add(newKeyPress);
+		container->RemoveKeyPress(oldKeyPress);
+		container->AddKeyPress(newKeyPress);
+		repaint();
 	}
 	else
 	{

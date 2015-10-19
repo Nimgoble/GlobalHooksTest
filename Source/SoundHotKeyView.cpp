@@ -28,14 +28,14 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-SoundHotKeyView::SoundHotKeyView (SoundInfoOperationsListener *_listener, SoundHotKeyInfo *_info)
+SoundHotKeyView::SoundHotKeyView(SoundInfoOperationsListener *_listener, SoundHotKeyInfoContainer *_container)
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	info = _info;
+	container = _container;
 	listener = _listener;
 	setInterceptsMouseClicks(true, true);
 	ApplicationCommandManager &manager = MainWindow::getApplicationCommandManager();
-	keyMappingList = new KeyMappingList(manager, info);
+	keyMappingList = new KeyMappingList(manager, container);
     //[/Constructor_pre]
 
     addAndMakeVisible (lblSoundName = new Label ("Sound Name",
@@ -106,7 +106,7 @@ SoundHotKeyView::SoundHotKeyView (SoundInfoOperationsListener *_listener, SoundH
 SoundHotKeyView::~SoundHotKeyView()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-	info = nullptr;
+	container = nullptr;
     //[/Destructor_pre]
 
     lblSoundName = nullptr;
@@ -136,6 +136,8 @@ void SoundHotKeyView::paint (Graphics& g)
 		getLookAndFeel().drawKeymapChangeButton(g, getWidth(), getHeight(), *this,
 			keyNum >= 0 ? getName() : String::empty);
 	}*/
+	if (!container->DoesSourceFileExist())
+		g.fillAll(Colours::red);
 
 	juce::Colour boundsColor = (isSelected) ? Colours::blue : Colours::black;
 	float width = (isSelected) ? 2.0f : 1.0f;
@@ -158,11 +160,11 @@ void SoundHotKeyView::resized()
     btnRemove->setBounds (0, 0, 24, 24);
     //[UserResized] Add your own custom resize handling here..
 	Rectangle<int> area(getLocalBounds());
-	area.removeFromLeft(64);
+	area.removeFromLeft(88);
 	int width = area.getWidth();
-	lblName->setBounds(64, 0, width, 24);
-	lblSoundName->setBounds(64, 24, width, 24);
-	keyMappingList->setBounds(64, 48, width, 24);
+	lblName->setBounds(88, 0, width, 24);
+	lblSoundName->setBounds(88, 24, width, 24);
+	keyMappingList->setBounds(88, 48, width, 24);
     //[/UserResized]
 }
 
@@ -174,7 +176,7 @@ void SoundHotKeyView::buttonClicked (Button* buttonThatWasClicked)
     if (buttonThatWasClicked == btnRemove)
     {
         //[UserButtonCode_btnRemove] -- add your button handler code here..
-		listener->RemoveInfo(info);
+		listener->RemoveInfo(container->GetSoundHotKeyInfo().CommandID);
         //[/UserButtonCode_btnRemove]
     }
 
@@ -189,8 +191,8 @@ void SoundHotKeyView::update(bool selected)
 {
 
 	isSelected = selected;
-	String name = (info == nullptr) ? String::empty : info->Name;
-	String sourceFile = (info == nullptr) ? String::empty : info->SourceFile;
+	String name = (container == nullptr) ? String::empty : container->GetSoundHotKeyInfo().Name;
+	String sourceFile = (container == nullptr) ? String::empty : container->GetSoundHotKeyInfo().SourceFile;
 	lblName->setText(name, juce::NotificationType::sendNotification);
 	lblSoundName->setText(sourceFile, juce::NotificationType::sendNotification);
 	keyMappingList->update();

@@ -1,0 +1,57 @@
+[
+  {
+    "Name": "31255__erh__door-1.wav",
+    "SourceFile": "C:\\Users\\johnathan\\Music\\31255__erh__door-1.wav",
+    "KeyPresses": [
+      {
+        "KeyCode": 65632,
+        "ModifierFlags": 0,
+        "TextCharacter": 48
+      }
+    ]
+  },
+  {
+    "Name": "33244__ljudman__dingding.wav",
+    "SourceFile": "C:\\Users\\johnathan\\Music\\33244__ljudman__dingding.wav",
+    "KeyPresses": [
+      {
+        "KeyCode": 65633,
+        "ModifierFlags": 0,
+        "TextCharacter": 49
+      }
+    ]
+  },
+  {
+    "Name": "33245__ljudman__grenade.wav",
+    "SourceFile": "C:\\Users\\johnathan\\Music\\33245__ljudman__grenade.wav",
+    "KeyPresses": [
+      {
+        "KeyCode": 65634,
+        "ModifierFlags": 0,
+        "TextCharacter": 50
+      }
+    ]
+  },
+  {
+    "Name": "195396__goup-1__boom-kick.wav",
+    "SourceFile": "C:\\Users\\johnathan\\Music\\195396__goup-1__boom-kick.wav",
+    "KeyPresses": [
+      {
+        "KeyCode": 65635,
+        "ModifierFlags": 0,
+        "TextCharacter": 51
+      }
+    ]
+  },
+  {
+    "Name": "23387__ljudman__dog.wav",
+    "SourceFile": "C:\\Users\\johnathan\\Music\\23387__ljudman__dog.wav",
+    "KeyPresses": [
+      {
+        "KeyCode": 65636,
+        "ModifierFlags": 0,
+        "TextCharacter": 52
+      }
+    ]
+  }
+]

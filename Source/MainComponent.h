@@ -25,6 +25,7 @@
 #include "SoundHotKeyInfo.h"
 #include "SoundFileDragAndDropTarget.h"
 #include "SoundInfoOperationsListener.h"
+#include "SoundHotKeyConfigFile.h"
 //[/Headers]
 
 
@@ -66,7 +67,7 @@ public:
 
 
 	void CreateInfoFromFile(const String &file) override;
-	void RemoveInfo(SoundHotKeyInfo *info) override;
+	void RemoveInfo(CommandID id) override;
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -78,8 +79,8 @@ private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	//juce::KeyMappingEditorComponent keyMappingEditor;
 	ScopedPointer<MenuBarComponent> menuBar;
-
-	juce::StringArray songs;
+	ScopedPointer<AudioDeviceManager> audioDeviceManager;
+	ScopedPointer<SoundHotKeyConfigFile> currentConfigFile;
 
 	enum CommandIDs
 	{
@@ -92,8 +93,6 @@ private:
 	void Command_SaveSoundHotKeyFile();
 	void SaveSoundHotKeyFile(File &file);
 
-	SoundHotKeyInfo *GetSoundHotKeyByCommandID(CommandID id);
-
 	ApplicationCommandTarget* getNextCommandTarget() override;
 
 	void getAllCommands(Array<CommandID>& commands) override;
@@ -101,10 +100,6 @@ private:
 	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
 
 	bool perform(const InvocationInfo& info) override;
-
-	CommandID getNextCommandID();
-
-	juce::OwnedArray<SoundHotKeyInfo> soundHotKeys;
     //[/UserVariables]
 
     //==============================================================================

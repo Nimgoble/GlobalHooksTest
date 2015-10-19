@@ -249,7 +249,7 @@ static __inline void process_key_pressed(uint64_t timestamp, KBDLLHOOKSTRUCT *kb
 			event.type = EVENT_KEY_TYPED;
 			event.mask = get_modifiers();
 
-			event.data.keyboard.keycode = VC_UNDEFINED;
+			event.data.keyboard.keycode = keycode_to_scancode(kbhook->vkCode);
 			event.data.keyboard.rawcode = kbhook->vkCode;
 			event.data.keyboard.keychar = buffer[i];
 

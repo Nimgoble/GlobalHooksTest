@@ -26,8 +26,6 @@
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 #include "MainWindow.h"
 #include "SoundHotKeyView.h"
-
-#define COMMANDS_BASE 0x2200
 //[/MiscUserDefs]
 
 //==============================================================================
@@ -35,6 +33,9 @@ MainComponent::MainComponent ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	addAndMakeVisible(menuBar = new MenuBarComponent(this));
+	audioDeviceManager = new AudioDeviceManager();
+	audioDeviceManager->initialise(2, 2, 0, true, String::empty, 0);//TODO: device options.
+	currentConfigFile = new SoundHotKeyConfigFile(*audioDeviceManager, MainWindow::getApplicationCommandManager());
     //[/Constructor_pre]
 
     addAndMakeVisible (SoundHotKeyListBox = new ListBox());
@@ -61,7 +62,8 @@ MainComponent::MainComponent ()
 MainComponent::~MainComponent()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
-	soundHotKeys.clear(true);
+	currentConfigFile->Unload();
+	currentConfigFile = nullptr;
     //[/Destructor_pre]
 
     SoundHotKeyListBox = nullptr;
@@ -105,7 +107,7 @@ void MainComponent::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
-int MainComponent::getNumRows() { return soundHotKeys.size(); }
+int MainComponent::getNumRows() { return (currentConfigFile == nullptr) ? 0 : currentConfigFile->NumberOfSoundHotKeyEntries(); }
 
 void MainComponent::paintListBoxItem(int rowNumber, Graphics& g, int width, int height, bool rowIsSelected)
 {
@@ -118,7 +120,7 @@ Component* MainComponent::refreshComponentForRow(int rowNumber, bool isRowSelect
 
 	SoundHotKeyView* comp = static_cast<SoundHotKeyView *> (existingComponentToUpdate);
 
-	int totalSounds = soundHotKeys.size();
+	int totalSounds = currentConfigFile->NumberOfSoundHotKeyEntries();
 	if (rowNumber < 0 || rowNumber >= totalSounds)
 	{
 		if (existingComponentToUpdate != nullptr)
@@ -129,10 +131,10 @@ Component* MainComponent::refreshComponentForRow(int rowNumber, bool isRowSelect
 		return nullptr;
 	}
 
-	SoundHotKeyInfo *info = soundHotKeys.getUnchecked(rowNumber);
+	SoundHotKeyInfoContainer *container = currentConfigFile->GetContainerByIndex(rowNumber);
 	if (comp == nullptr)
-		comp = new SoundHotKeyView(this, info);
-	else if (info != comp->getSoundHotKeyInfo())
+		comp = new SoundHotKeyView(this, container);
+	else if (container != comp->getSoundHotKeyInfoContainer())
 	{
 		//This is goofy.  We can can an existing component that wasn't made for this particular row.
 		//Just scrub it and make a new one.
@@ -141,7 +143,7 @@ Component* MainComponent::refreshComponentForRow(int rowNumber, bool isRowSelect
 			delete existingComponentToUpdate;
 			existingComponentToUpdate = nullptr;
 		}
-		comp = new SoundHotKeyView(this, info);
+		comp = new SoundHotKeyView(this, container);
 	}
 	else
 		comp->update(isRowSelected);
@@ -172,23 +174,14 @@ void MainComponent::menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/)
 
 void MainComponent::CreateInfoFromFile(const String &file)
 {
-	File actualFile(file);
-	SoundHotKeyInfo *info = new SoundHotKeyInfo();
-	info->CommandID = getNextCommandID();
-	info->Name = actualFile.getFileName();
-	info->SourceFile = file;
-	int newRowIndex = soundHotKeys.size();
-	soundHotKeys.add(info);
+	int index = currentConfigFile->AddSoundHotKey(file);
 	SoundHotKeyListBox->updateContent();
-	SoundHotKeyListBox->scrollToEnsureRowIsOnscreen(newRowIndex);
-	MainWindow::getApplicationCommandManager().registerCommand(info->getApplicationCommandInfo());
+	SoundHotKeyListBox->scrollToEnsureRowIsOnscreen(index);
 }
 
-void MainComponent::RemoveInfo(SoundHotKeyInfo *info)
+void MainComponent::RemoveInfo(CommandID id)
 {
-
-	MainWindow::getApplicationCommandManager().removeCommand(info->CommandID);
-	soundHotKeys.removeObject(info, true);
+	currentConfigFile->RemoveSoundHotKey(id);
 	SoundHotKeyListBox->updateContent();
 }
 
@@ -204,45 +197,21 @@ void MainComponent::Command_LoadSoundHotKeyFile()
 }
 void MainComponent::LoadSoundHotKeyFile(File &file)
 {
-	ApplicationCommandManager* commandManager = &MainWindow::getApplicationCommandManager();
-
-	//Remove all of the old commands
-	for (int i = 0; i < soundHotKeys.size(); ++i)
+	if (currentConfigFile != nullptr)
 	{
-		SoundHotKeyInfo *info = soundHotKeys.getUnchecked(i);
-		if (info == nullptr)
-			continue;
-
-		commandManager->removeCommand(info->CommandID);
+		currentConfigFile->Unload();
+		currentConfigFile = nullptr;
 	}
-	//SoundHotKeyListBox->deleteAllChildren();
-	soundHotKeys.clear(true);
-	SoundHotKeyListBox->updateContent();
 
-	String jsonString = file.loadFileAsString();
-	var json;
-	Result result = JSON::parse(jsonString, json);
-	if (result.ok())
+	currentConfigFile = new SoundHotKeyConfigFile(*audioDeviceManager, MainWindow::getApplicationCommandManager());
+	if (!currentConfigFile->LoadFile(file))
 	{
-		if (json.isArray())
-		{
-			for (int i = 0; i < json.size(); ++i)
-			{
-				var& child(json[i]);
-				if (child.isVoid())
-					continue;
-
-				SoundHotKeyInfo *info = new SoundHotKeyInfo(child);
-				info->CommandID = CommandID(COMMANDS_BASE + i);
-				soundHotKeys.add(info);
-
-				//Add the new command
-				commandManager->registerCommand(info->getApplicationCommandInfo());
-			}
-		}
-	}
+		//Unload and load a blank config file.
+		currentConfigFile = nullptr;
+		currentConfigFile = new SoundHotKeyConfigFile(*audioDeviceManager, MainWindow::getApplicationCommandManager());
+	}	
+		
 	SoundHotKeyListBox->updateContent();
-	//SoundHotKeyListBox->repaint();
 }
 void MainComponent::Command_SaveSoundHotKeyFile()
 {
@@ -254,34 +223,11 @@ void MainComponent::Command_SaveSoundHotKeyFile()
 		SaveSoundHotKeyFile(chosenFile);
 	}
 }
+
 void MainComponent::SaveSoundHotKeyFile(File &file)
 {
-	Array<var> children;
-	for (int i = 0; i < soundHotKeys.size(); ++i)
-	{
-		var childJSON = soundHotKeys.getUnchecked(i)->toJSON();
-		children.add(childJSON);
-	}
-	var root(children);
-	FileOutputStream *outputStream = file.createOutputStream();
-	outputStream->setPosition(0);
-	JSON::writeToStream(*outputStream, root);
-	outputStream->flush();
-	delete outputStream;
-	outputStream = nullptr;
+	currentConfigFile->SaveFileAs(file);
 }
-
-SoundHotKeyInfo *MainComponent::GetSoundHotKeyByCommandID(CommandID id)
-{
-	for (int i = 0; i < soundHotKeys.size(); ++i)
-	{
-		SoundHotKeyInfo *info = soundHotKeys.getUnchecked(i);
-		if (info->CommandID == id)
-			return info;
-	}
-	return nullptr;
-}
-
 
 ApplicationCommandTarget* MainComponent::getNextCommandTarget()
 {
@@ -295,9 +241,9 @@ void MainComponent::getAllCommands(Array<CommandID>& commands)
 	commands.add(CommandID(CommandIDs::cLoadSoundHotKeyFile));
 	commands.add(CommandID(CommandIDs::cSaveSoundHotkeyFile));
 	// this returns the set of all commands that this target can perform..
-	for (int i = 0; i < soundHotKeys.size(); ++i)
+	for (int i = 0; i < currentConfigFile->NumberOfSoundHotKeyEntries(); ++i)
 	{
-		commands.add(CommandID(COMMANDS_BASE + i));
+		commands.add(currentConfigFile->GetContainerByIndex(i)->getCommandID());
 	}
 }
 
@@ -314,11 +260,11 @@ void MainComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& 
 		result.addDefaultKeypress('S', juce::ModifierKeys::ctrlModifier);
 		break;
 	default:
-		SoundHotKeyInfo *info = GetSoundHotKeyByCommandID(commandID);
-		if (info == nullptr)
+		SoundHotKeyInfoContainer *container = currentConfigFile->GetContainerByCommandID(commandID);
+		if (container == nullptr)
 			return;
 
-		result = info->getApplicationCommandInfo();
+		result = container->GetSoundHotKeyInfo().getApplicationCommandInfo();
 	}
 }
 
@@ -333,31 +279,18 @@ bool MainComponent::perform(const InvocationInfo& info)
 		Command_SaveSoundHotKeyFile();
 		break;
 	default:
-		SoundHotKeyInfo *_info = GetSoundHotKeyByCommandID(info.commandID);
-		if (_info == nullptr)
+		SoundHotKeyInfoContainer *container = currentConfigFile->GetContainerByCommandID(info.commandID);
+		if (container == nullptr)
 			return false;
 
+		container->PlayOrStop();
 		//Play sound here.
 	}
 
 	return true;
 }
 
-CommandID MainComponent::getNextCommandID()
-{
-	if (soundHotKeys.size() == 0)
-		return CommandID(COMMANDS_BASE);
 
-	CommandID highest(COMMANDS_BASE);
-	for (int i = 0; i < soundHotKeys.size(); ++i)
-	{
-		CommandID current = soundHotKeys.getUnchecked(i)->CommandID;
-		if (highest < current)
-			highest = current;
-	}
-
-	return CommandID(highest + 1);
-}
 //[/MiscUserCode]
 
 

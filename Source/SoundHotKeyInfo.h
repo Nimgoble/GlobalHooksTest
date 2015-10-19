@@ -23,11 +23,6 @@ public:
 		SourceFile = "";
 	}
 
-	~SoundHotKeyInfo()
-	{
-		masterReference.clear();
-	}
-
 	SoundHotKeyInfo(var json)
 	{
 		DynamicObject* obj = json.getDynamicObject();
@@ -104,8 +99,6 @@ public:
     Array<KeyPress> KeyPresses;
 
 private:
-	WeakReference<SoundHotKeyInfo>::Master masterReference;
-	friend class WeakReference<SoundHotKeyInfo>;
 
 	JUCE_LEAK_DETECTOR(SoundHotKeyInfo)
 };
