@@ -44,6 +44,17 @@ MainComponent::MainComponent ()
     addAndMakeVisible (soundFileDragAndDropTarget = new SoundFileDragAndDropTarget (this));
     soundFileDragAndDropTarget->setName ("Sound File DragAndDrop Target");
 
+    addAndMakeVisible (audioDeviceSelector = new AudioDeviceSelectorComponent (*audioDeviceManager,
+                                                                               2,
+                                                                               2,
+                                                                               2,
+                                                                               2,
+                                                                               false,
+                                                                               false,
+                                                                               true,
+                                                                               true));
+    audioDeviceSelector->setName ("Audio Device Selector");
+
 
     //[UserPreSize]
     //[/UserPreSize]
@@ -68,6 +79,7 @@ MainComponent::~MainComponent()
 
     SoundHotKeyListBox = nullptr;
     soundFileDragAndDropTarget = nullptr;
+    audioDeviceSelector = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -91,13 +103,17 @@ void MainComponent::resized()
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    SoundHotKeyListBox->setBounds (0, 80, 376, 288);
+    SoundHotKeyListBox->setBounds (0, 240, 376, 288);
     soundFileDragAndDropTarget->setBounds (0, 0, 376, 80);
+    audioDeviceSelector->setBounds (0, 80, 376, 160);
     //[UserResized] Add your own custom resize handling here..
 	Rectangle<int> area(getLocalBounds());
 	int menuBarHeight = LookAndFeel::getDefaultLookAndFeel().getDefaultMenuBarHeight();
+	//menubar
 	menuBar->setBounds(area.removeFromTop(menuBarHeight));
+	//drag and drop target
 	soundFileDragAndDropTarget->setBounds(area.removeFromTop(80));
+	audioDeviceSelector->setBounds(area.removeFromTop(120));
 	SoundHotKeyListBox->setBounds(area.reduced(4));
 	soundFileDragAndDropTarget->repaint();
     //[/UserResized]
@@ -209,8 +225,8 @@ void MainComponent::LoadSoundHotKeyFile(File &file)
 		//Unload and load a blank config file.
 		currentConfigFile = nullptr;
 		currentConfigFile = new SoundHotKeyConfigFile(*audioDeviceManager, MainWindow::getApplicationCommandManager());
-	}	
-		
+	}
+
 	SoundHotKeyListBox->updateContent();
 }
 void MainComponent::Command_SaveSoundHotKeyFile()
@@ -310,11 +326,14 @@ BEGIN_JUCER_METADATA
                  initialHeight="400">
   <BACKGROUND backgroundColour="ffffffff"/>
   <GENERICCOMPONENT name="SoundHotKey ListBox" id="9551b420e40a1074" memberName="SoundHotKeyListBox"
-                    virtualName="" explicitFocusOrder="0" pos="0 80 376 288" class="ListBox"
+                    virtualName="" explicitFocusOrder="0" pos="0 240 376 288" class="ListBox"
                     params=""/>
   <GENERICCOMPONENT name="Sound File DragAndDrop Target" id="1bec592c5b8f0acb" memberName="soundFileDragAndDropTarget"
                     virtualName="" explicitFocusOrder="0" pos="0 0 376 80" class="SoundFileDragAndDropTarget"
                     params="this"/>
+  <GENERICCOMPONENT name="Audio Device Selector" id="dc7596dee90e04d3" memberName="audioDeviceSelector"
+                    virtualName="" explicitFocusOrder="0" pos="0 80 376 160" class="AudioDeviceSelectorComponent"
+                    params="*audioDeviceManager,&#10;2,&#10;2,&#10;2,&#10;2,&#10;false,&#10;false,&#10;true,&#10;true"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

@@ -105,6 +105,7 @@ private:
     //==============================================================================
     ScopedPointer<ListBox> SoundHotKeyListBox;
     ScopedPointer<SoundFileDragAndDropTarget> soundFileDragAndDropTarget;
+    ScopedPointer<AudioDeviceSelectorComponent> audioDeviceSelector;
 
 
     //==============================================================================
