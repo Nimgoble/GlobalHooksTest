@@ -115,7 +115,11 @@ int SoundHotKeyConfigFile::AddSoundHotKey(String fileSource)
 }
 void SoundHotKeyConfigFile::RemoveSoundHotKey(CommandID id)
 {
+	SoundHotKeyInfoContainer *container = GetContainerByCommandID(id);
+	if (container == nullptr)
+		return;
 
+	SoundHotKeyInfoContainers.removeObject(container, true);
 }
 
 SoundHotKeyInfoContainer *SoundHotKeyConfigFile::GetContainerByCommandID(CommandID id)
