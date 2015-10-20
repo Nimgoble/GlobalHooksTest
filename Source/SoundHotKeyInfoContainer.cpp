@@ -43,11 +43,13 @@ void SoundHotKeyInfoContainer::PlayOrStop()
 
 	if (transportSource.isPlaying())
 		transportSource.stop();
-	else
+	/*else
 	{
-		transportSource.setPosition(0);
-		transportSource.start();
-	}
+		
+	}*/
+
+	transportSource.setPosition(0);
+	transportSource.start();
 }
 
 void SoundHotKeyInfoContainer::AddKeyPress(const KeyPress &newKeyPress)
