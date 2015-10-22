@@ -36,6 +36,9 @@ public:
 	void AddKeyPress(const KeyPress &newKeyPress);
 	void RemoveKeyPress(const KeyPress &keyPress);
 
+	double getPercentageDone();
+	bool isPlaying(){ return transportSource.isPlaying(); }
+
 private:
 	ApplicationCommandManager& commandManager;
 	AudioDeviceManager &audioDeviceManager;

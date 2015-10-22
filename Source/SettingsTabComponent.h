@@ -17,12 +17,11 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_9002020A4DD09B20__
-#define __JUCE_HEADER_9002020A4DD09B20__
+#ifndef __JUCE_HEADER_CB0E969D2A8CE66E__
+#define __JUCE_HEADER_CB0E969D2A8CE66E__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
-#include "TabsContainerComponent.h"
 //[/Headers]
 
 
@@ -35,16 +34,20 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MainComponent  : public Component,
-                       public ApplicationCommandTarget
+class SettingsTabComponent  : public Component,
+                              public ApplicationCommandTarget
 {
 public:
     //==============================================================================
-    MainComponent ();
-    ~MainComponent();
+    SettingsTabComponent (AudioDeviceManager &_audioDeviceManager);
+    ~SettingsTabComponent();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	ApplicationCommandTarget* getNextCommandTarget() override;
+	void getAllCommands(Array<CommandID>& commands) override;
+	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
+	bool perform(const InvocationInfo& info) override;
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -54,28 +57,18 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	//juce::KeyMappingEditorComponent keyMappingEditor;
-
-	ScopedPointer<AudioDeviceManager> audioDeviceManager;
-
-	ApplicationCommandTarget* getNextCommandTarget() override;
-
-	void getAllCommands(Array<CommandID>& commands) override;
-
-	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
-
-	bool perform(const InvocationInfo& info) override;
+	AudioDeviceManager &audioDeviceManager;
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<TabsContainerComponent> tabsContainer;
+    ScopedPointer<AudioDeviceSelectorComponent> audioDeviceSelector;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SettingsTabComponent)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_9002020A4DD09B20__
+#endif   // __JUCE_HEADER_CB0E969D2A8CE66E__

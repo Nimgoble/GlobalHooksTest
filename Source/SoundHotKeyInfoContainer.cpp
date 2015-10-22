@@ -64,6 +64,18 @@ void SoundHotKeyInfoContainer::RemoveKeyPress(const KeyPress &keyPress)
 	info.KeyPresses.removeFirstMatchingValue(keyPress);
 }
 
+double SoundHotKeyInfoContainer::getPercentageDone()
+{
+	double rtn = 0.0f;
+	if (transportSource.isPlaying())
+	{
+		double currentPosition = transportSource.getCurrentPosition();
+		double totalLength = transportSource.getLengthInSeconds();
+		rtn = currentPosition / totalLength;
+	}
+	return rtn;
+}
+
 void SoundHotKeyInfoContainer::LoadTransportSource(const File& audioFile)
 {
 	AudioFormatReader* reader = formatManager.createReaderFor(audioFile);

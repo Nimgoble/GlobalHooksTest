@@ -17,12 +17,15 @@
   ==============================================================================
 */
 
-#ifndef __JUCE_HEADER_9002020A4DD09B20__
-#define __JUCE_HEADER_9002020A4DD09B20__
+#ifndef __JUCE_HEADER_2D44EA27B4F31DEA__
+#define __JUCE_HEADER_2D44EA27B4F31DEA__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
-#include "TabsContainerComponent.h"
+#include "SoundHotKeyInfo.h"
+#include "SoundFileDragAndDropTarget.h"
+#include "SoundInfoOperationsListener.h"
+#include "SoundHotKeyConfigFile.h"
 //[/Headers]
 
 
@@ -35,16 +38,34 @@
     Describe your class and how it works here!
                                                                     //[/Comments]
 */
-class MainComponent  : public Component,
-                       public ApplicationCommandTarget
+class SongsTabComponent  : public Component,
+                           public ListBoxModel,
+                           public ChangeBroadcaster,
+                           public MenuBarModel,
+                           public SoundInfoOperationsListener
 {
 public:
     //==============================================================================
-    MainComponent ();
-    ~MainComponent();
+    SongsTabComponent (AudioDeviceManager &_audioDeviceManager);
+    ~SongsTabComponent();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	int getNumRows() override;
+	void paintListBoxItem(int rowNumber,
+		Graphics& g,
+		int width, int height,
+		bool rowIsSelected) override;
+
+	Component* refreshComponentForRow(int rowNumber, bool isRowSelected, Component*) override;
+
+	StringArray getMenuBarNames() override;
+	PopupMenu getMenuForIndex(int menuIndex, const String& /*menuName*/) override;
+	void menuItemSelected(int menuItemID, int /*topLevelMenuIndex*/) override;
+
+
+	void CreateInfoFromFile(const String &file) override;
+	void RemoveInfo(CommandID id) override;
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -54,28 +75,32 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
-	//juce::KeyMappingEditorComponent keyMappingEditor;
+	AudioDeviceManager &audioDeviceManager;
+	ScopedPointer<MenuBarComponent> menuBar;
+	ScopedPointer<SoundHotKeyConfigFile> currentConfigFile;
 
-	ScopedPointer<AudioDeviceManager> audioDeviceManager;
+	enum CommandIDs
+	{
+		cLoadSoundHotKeyFile = 0x2100,
+		cSaveSoundHotkeyFile = 0x2101
+	};
 
-	ApplicationCommandTarget* getNextCommandTarget() override;
-
-	void getAllCommands(Array<CommandID>& commands) override;
-
-	void getCommandInfo(CommandID commandID, ApplicationCommandInfo& result) override;
-
-	bool perform(const InvocationInfo& info) override;
+	void Command_LoadSoundHotKeyFile();
+	void LoadSoundHotKeyFile(File &file);
+	void Command_SaveSoundHotKeyFile();
+	void SaveSoundHotKeyFile(File &file);
     //[/UserVariables]
 
     //==============================================================================
-    ScopedPointer<TabsContainerComponent> tabsContainer;
+    ScopedPointer<ListBox> SoundHotKeyListBox;
+    ScopedPointer<SoundFileDragAndDropTarget> soundFileDragAndDropTarget;
 
 
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SongsTabComponent)
 };
 
 //[EndFile] You can add extra defines here...
 //[/EndFile]
 
-#endif   // __JUCE_HEADER_9002020A4DD09B20__
+#endif   // __JUCE_HEADER_2D44EA27B4F31DEA__

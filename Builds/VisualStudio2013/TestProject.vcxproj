@@ -134,6 +134,9 @@
     <ClCompile Include="..\..\libuiohook\logger.cpp"/>
     <ClCompile Include="..\..\libuiohook\post_event.cpp"/>
     <ClCompile Include="..\..\libuiohook\system_properties.cpp"/>
+    <ClCompile Include="..\..\Source\TabsContainerComponent.cpp"/>
+    <ClCompile Include="..\..\Source\SettingsTabComponent.cpp"/>
+    <ClCompile Include="..\..\Source\SoundsTabComponent.cpp"/>
     <ClCompile Include="..\..\Source\SoundHotKeyConfigFile.cpp"/>
     <ClCompile Include="..\..\Source\SoundHotKeyInfoContainer.cpp"/>
     <ClCompile Include="..\..\Source\ChangeKeyButton.cpp"/>
@@ -1290,6 +1293,9 @@
     <ClInclude Include="..\..\libuiohook\input_helper.h"/>
     <ClInclude Include="..\..\libuiohook\logger.h"/>
     <ClInclude Include="..\..\libuiohook\uiohook.h"/>
+    <ClInclude Include="..\..\Source\TabsContainerComponent.h"/>
+    <ClInclude Include="..\..\Source\SettingsTabComponent.h"/>
+    <ClInclude Include="..\..\Source\SoundsTabComponent.h"/>
     <ClInclude Include="..\..\Source\SoundHotKeyConfigFile.h"/>
     <ClInclude Include="..\..\Source\SoundHotKeyInfoContainer.h"/>
     <ClInclude Include="..\..\Source\SoundInfoOperationsListener.h"/>

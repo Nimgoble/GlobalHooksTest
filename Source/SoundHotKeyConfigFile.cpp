@@ -53,6 +53,7 @@ bool SoundHotKeyConfigFile::LoadFile(File &file)
 		}
 	}
 	isNewFile = false;
+	configFile = file.getFullPathName();
 
 	return true;
 }
@@ -95,6 +96,8 @@ void SoundHotKeyConfigFile::Unload()
 		commandManager.removeCommand(container->GetSoundHotKeyInfo().CommandID);
 	}
 	SoundHotKeyInfoContainers.clear(true);
+	/*isNewFile = true;
+	configFile = String::empty;*/
 }
 
 int SoundHotKeyConfigFile::AddSoundHotKey(String fileSource)
@@ -139,6 +142,11 @@ SoundHotKeyInfoContainer *SoundHotKeyConfigFile::GetContainerByIndex(int index)
 		return nullptr;
 
 	return SoundHotKeyInfoContainers.getUnchecked(index);
+}
+
+int SoundHotKeyConfigFile::GetIndexOfContainer(SoundHotKeyInfoContainer *container)
+{
+	return SoundHotKeyInfoContainers.indexOf(container);
 }
 
 CommandID SoundHotKeyConfigFile::getNextCommandID()

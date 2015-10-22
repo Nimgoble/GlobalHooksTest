@@ -28,14 +28,13 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-SoundHotKeyView::SoundHotKeyView(SoundInfoOperationsListener *_listener, SoundHotKeyInfoContainer *_container)
+SoundHotKeyView::SoundHotKeyView (SoundInfoOperationsListener *_listener, SoundHotKeyInfoContainer *_container)
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	container = _container;
 	listener = _listener;
 	setInterceptsMouseClicks(true, true);
 	ApplicationCommandManager &manager = MainWindow::getApplicationCommandManager();
-	keyMappingList = new KeyMappingList(manager, container);
     //[/Constructor_pre]
 
     addAndMakeVisible (lblSoundName = new Label ("Sound Name",
@@ -80,6 +79,9 @@ SoundHotKeyView::SoundHotKeyView(SoundInfoOperationsListener *_listener, SoundHo
     lblName->setColour (TextEditor::textColourId, Colours::black);
     lblName->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
+    addAndMakeVisible (keyMappingList = new KeyMappingList (manager, container));
+    keyMappingList->setName ("List Of Key Mappings");
+
     addAndMakeVisible (btnRemove = new TextButton ("Removal Button"));
     btnRemove->setTooltip (TRANS("Removes the current sound from the configuration\n"));
     btnRemove->setButtonText (TRANS("X"));
@@ -98,8 +100,8 @@ SoundHotKeyView::SoundHotKeyView(SoundInfoOperationsListener *_listener, SoundHo
 	keyMappingList->setName("List Of Key Mappings");
 	isSelected = false;
 	update(false);
-	/*label->setColour(juce::Label::ColourIds::outlineColourId, juce::Colours::black);
-	label2->setColour(juce::Label::ColourIds::outlineColourId, juce::Colours::black);*/
+	setOpaque(true);
+	startRepainting();
     //[/Constructor]
 }
 
@@ -131,13 +133,20 @@ void SoundHotKeyView::paint (Graphics& g)
     g.fillAll (Colours::white);
 
     //[UserPaint] Add your own custom painting code here..
-	/*for (int i = 0; i < info->KeyPresses.size(); ++i)
-	{
-		getLookAndFeel().drawKeymapChangeButton(g, getWidth(), getHeight(), *this,
-			keyNum >= 0 ? getName() : String::empty);
-	}*/
 	if (!container->DoesSourceFileExist())
 		g.fillAll(Colours::red);
+	else if (container->isPlaying())
+	{
+		//If we're playing, then draw how far
+		//through the sound we are.
+		Rectangle<int> bounds = getLocalBounds();
+		double percentageDone = container->getPercentageDone();
+		double removalLength = bounds.getWidth() - (bounds.getWidth() * percentageDone);
+		bounds.removeFromRight(removalLength);
+		g.setColour(Colours::yellowgreen);
+		g.fillRect(bounds);
+		g.setColour(Colours::black);
+	}
 
 	juce::Colour boundsColor = (isSelected) ? Colours::blue : Colours::black;
 	float width = (isSelected) ? 2.0f : 1.0f;
@@ -196,16 +205,21 @@ void SoundHotKeyView::update(bool selected)
 	lblName->setText(name, juce::NotificationType::sendNotification);
 	lblSoundName->setText(sourceFile, juce::NotificationType::sendNotification);
 	keyMappingList->update();
-	/*String hotkeys;
-	int numHotKeys = _info.KeyPresses.size();
-	for (int i = 0; i < numHotKeys; ++i)
-	{
-		keyMappingList->addKeyPressButton
-		hotkeys += _info.KeyPresses.getUnchecked(i).getTextDescription();
-		if (i < (numHotKeys - 1))
-			hotkeys += ", ";
-	}*/
-	//lblHotKey->setText(hotkeys, juce::sendNotification);
+}
+
+void SoundHotKeyView::startRepainting()
+{
+	if (container == nullptr || !container->isPlaying())
+		return;
+
+	startTimer(100);
+}
+
+void SoundHotKeyView::timerCallback()
+{
+	if (container == nullptr || !container->isPlaying())
+		stopTimer();
+	repaint();
 }
 //[/MiscUserCode]
 
@@ -220,7 +234,7 @@ void SoundHotKeyView::update(bool selected)
 BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SoundHotKeyView" componentName=""
-                 parentClasses="public Component" constructorParams="SoundInfoOperationsListener *listener, SoundHotKeyInfo *_info"
+                 parentClasses="public Component, private Timer" constructorParams="SoundInfoOperationsListener *_listener, SoundHotKeyInfoContainer *_container"
                  variableInitialisers="" snapPixels="8" snapActive="1" snapShown="1"
                  overlayOpacity="0.330" fixedSize="1" initialWidth="600" initialHeight="75">
   <BACKGROUND backgroundColour="ffffffff"/>
@@ -251,7 +265,7 @@ BEGIN_JUCER_METADATA
          fontsize="15" bold="0" italic="0" justification="33"/>
   <GENERICCOMPONENT name="List Of Key Mappings" id="8d8dd9199cffc638" memberName="keyMappingList"
                     virtualName="" explicitFocusOrder="0" pos="88 48 416 24" class="KeyMappingList"
-                    params=""/>
+                    params="manager, container"/>
   <TEXTBUTTON name="Removal Button" id="23d6a364c662b5d" memberName="btnRemove"
               virtualName="" explicitFocusOrder="0" pos="0 0 24 24" tooltip="Removes the current sound from the configuration&#10;"
               buttonText="X" connectedEdges="5" needsCallback="1" radioGroupId="0"/>

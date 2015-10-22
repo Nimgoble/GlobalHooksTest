@@ -18,44 +18,45 @@
 */
 
 //[Headers] You can add your own extra header files here...
+
 //[/Headers]
 
-#include "MainComponent.h"
+#include "TabsContainerComponent.h"
 
 
 //[MiscUserDefs] You can add your own user definitions and misc code here...
 //[/MiscUserDefs]
 
 //==============================================================================
-MainComponent::MainComponent ()
+TabsContainerComponent::TabsContainerComponent (AudioDeviceManager &_audioDeviceManager)
+    : TabbedComponent (TabbedButtonBar::TabsAtTop),
+      audioDeviceManager(_audioDeviceManager)
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	audioDeviceManager = new AudioDeviceManager();
-	audioDeviceManager->initialise(2, 2, 0, true, String::empty, 0);//TODO: device options.
+	soundsTab = new SoundsTabComponent(audioDeviceManager);
+	settingsTab = new SettingsTabComponent(audioDeviceManager);
+	addTab("Sounds", juce::Colours::white, soundsTab, true, 0);
+	addTab("Settings", juce::Colours::white, settingsTab, true, 1);
     //[/Constructor_pre]
-
-    addAndMakeVisible (tabsContainer = new TabsContainerComponent (*audioDeviceManager));
-    tabsContainer->setName ("Tab Container");
 
 
     //[UserPreSize]
-	setOpaque(true);
     //[/UserPreSize]
 
     setSize (600, 400);
 
 
     //[Constructor] You can add your own custom stuff here..
-	//Command_LoadSoundHotKeyFile();
     //[/Constructor]
 }
 
-MainComponent::~MainComponent()
+TabsContainerComponent::~TabsContainerComponent()
 {
     //[Destructor_pre]. You can add your own custom destruction code here..
+	/*soundsTab = nullptr;
+	settingsTab = nullptr;*/
     //[/Destructor_pre]
 
-    tabsContainer = nullptr;
 
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -63,7 +64,7 @@ MainComponent::~MainComponent()
 }
 
 //==============================================================================
-void MainComponent::paint (Graphics& g)
+void TabsContainerComponent::paint (Graphics& g)
 {
     //[UserPrePaint] Add your own custom painting code here..
     //[/UserPrePaint]
@@ -71,46 +72,45 @@ void MainComponent::paint (Graphics& g)
     g.fillAll (Colours::white);
 
     //[UserPaint] Add your own custom painting code here..
+	TabbedComponent::paint(g);
     //[/UserPaint]
 }
 
-void MainComponent::resized()
+void TabsContainerComponent::resized()
 {
     //[UserPreResize] Add your own custom resize code here..
     //[/UserPreResize]
 
-    tabsContainer->setBounds (0, 0, 456, 600);
     //[UserResized] Add your own custom resize handling here..
-	tabsContainer->setBounds(getLocalBounds().reduced(4));
+	TabbedComponent::resized();
     //[/UserResized]
 }
 
 
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
-
-
-
-ApplicationCommandTarget* MainComponent::getNextCommandTarget()
+ApplicationCommandTarget* TabsContainerComponent::getNextCommandTarget()
 {
 	// this will return the next parent component that is an ApplicationCommandTarget (in this
 	// case, there probably isn't one, but it's best to use this method in your own apps).
 	return findFirstTargetParentComponent();
 }
 
-void MainComponent::getAllCommands(Array<CommandID>& commands)
+void TabsContainerComponent::getAllCommands(Array<CommandID>& commands)
 {
-	tabsContainer->getAllCommands(commands);
+	settingsTab->getAllCommands(commands);
+	soundsTab->getAllCommands(commands);
 }
 
-void MainComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& result)
+void TabsContainerComponent::getCommandInfo(CommandID commandID, ApplicationCommandInfo& result)
 {
-	tabsContainer->getCommandInfo(commandID, result);
+	settingsTab->getCommandInfo(commandID, result);
+	soundsTab->getCommandInfo(commandID, result);
 }
 
-bool MainComponent::perform(const InvocationInfo& info)
+bool TabsContainerComponent::perform(const InvocationInfo& info)
 {
-	return tabsContainer->perform(info);
+	return settingsTab->perform(info) || soundsTab->perform(info);
 }
 //[/MiscUserCode]
 
@@ -124,15 +124,13 @@ bool MainComponent::perform(const InvocationInfo& info)
 
 BEGIN_JUCER_METADATA
 
-<JUCER_COMPONENT documentType="Component" className="MainComponent" componentName=""
-                 parentClasses="public Component, public ApplicationCommandTarget"
-                 constructorParams="" variableInitialisers="&#10;" snapPixels="8"
-                 snapActive="1" snapShown="1" overlayOpacity="0.330" fixedSize="0"
-                 initialWidth="600" initialHeight="400">
+<JUCER_COMPONENT documentType="Component" className="TabsContainerComponent" componentName=""
+                 parentClasses="public TabbedComponent, public ApplicationCommandTarget"
+                 constructorParams="AudioDeviceManager &amp;_audioDeviceManager"
+                 variableInitialisers="TabbedComponent (TabbedButtonBar::TabsAtTop),&#10;audioDeviceManager(_audioDeviceManager)"
+                 snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
+                 fixedSize="0" initialWidth="600" initialHeight="400">
   <BACKGROUND backgroundColour="ffffffff"/>
-  <GENERICCOMPONENT name="Tab Container" id="ad8eeaaf265e1bad" memberName="tabsContainer"
-                    virtualName="" explicitFocusOrder="0" pos="0 0 456 600" class="TabsContainerComponent"
-                    params="*audioDeviceManager"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

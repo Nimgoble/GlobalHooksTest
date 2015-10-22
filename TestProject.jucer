@@ -19,6 +19,18 @@
       <FILE id="kKngSK" name="uiohook.h" compile="0" resource="0" file="libuiohook/uiohook.h"/>
     </GROUP>
     <GROUP id="{02FAE260-72AE-50FB-656B-FF8931EC590E}" name="Source">
+      <FILE id="DJSlix" name="TabsContainerComponent.cpp" compile="1" resource="0"
+            file="Source/TabsContainerComponent.cpp"/>
+      <FILE id="PuGF9F" name="TabsContainerComponent.h" compile="0" resource="0"
+            file="Source/TabsContainerComponent.h"/>
+      <FILE id="TESqX5" name="SettingsTabComponent.cpp" compile="1" resource="0"
+            file="Source/SettingsTabComponent.cpp"/>
+      <FILE id="SpPEES" name="SettingsTabComponent.h" compile="0" resource="0"
+            file="Source/SettingsTabComponent.h"/>
+      <FILE id="QsflGN" name="SoundsTabComponent.cpp" compile="1" resource="0"
+            file="Source/SoundsTabComponent.cpp"/>
+      <FILE id="RiHss7" name="SoundsTabComponent.h" compile="0" resource="0"
+            file="Source/SoundsTabComponent.h"/>
       <FILE id="RbRXSw" name="SoundHotKeyConfigFile.cpp" compile="1" resource="0"
             file="Source/SoundHotKeyConfigFile.cpp"/>
       <FILE id="tKmTVO" name="SoundHotKeyConfigFile.h" compile="0" resource="0"

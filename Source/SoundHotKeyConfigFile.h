@@ -32,7 +32,10 @@ public:
 
 	SoundHotKeyInfoContainer *GetContainerByCommandID(CommandID id);
 	SoundHotKeyInfoContainer *GetContainerByIndex(int index);
+	int GetIndexOfContainer(SoundHotKeyInfoContainer *container);
 
+	bool IsNewFile(){ return isNewFile; }
+	String GetConfigFilePath(){ return configFile; }
 
 private:
 	AudioDeviceManager &audioDeviceManager;

@@ -37,17 +37,19 @@
                                                                     //[/Comments]
 */
 class SoundHotKeyView  : public Component,
+                         private Timer,
                          public ButtonListener
 {
 public:
     //==============================================================================
-	SoundHotKeyView(SoundInfoOperationsListener *listener, SoundHotKeyInfoContainer *_container);
+    SoundHotKeyView (SoundInfoOperationsListener *_listener, SoundHotKeyInfoContainer *_container);
     ~SoundHotKeyView();
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
 	void update(bool selected);
 	const SoundHotKeyInfoContainer *getSoundHotKeyInfoContainer(){ return container; }
+	void startRepainting();
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -61,6 +63,7 @@ private:
 	SoundInfoOperationsListener *listener;
 	bool isSelected;
 	WeakReference<SoundHotKeyInfoContainer> container;
+	void timerCallback() override;
     //[/UserVariables]
 
     //==============================================================================
