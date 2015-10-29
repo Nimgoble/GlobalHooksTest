@@ -19,6 +19,12 @@
       <FILE id="kKngSK" name="uiohook.h" compile="0" resource="0" file="libuiohook/uiohook.h"/>
     </GROUP>
     <GROUP id="{02FAE260-72AE-50FB-656B-FF8931EC590E}" name="Source">
+      <FILE id="kmYXiG" name="ApplicationSettingsFile.cpp" compile="1" resource="0"
+            file="Source/ApplicationSettingsFile.cpp"/>
+      <FILE id="wrsuDd" name="ApplicationSettingsFile.h" compile="0" resource="0"
+            file="Source/ApplicationSettingsFile.h"/>
+      <FILE id="yG6msi" name="IKeyPressCollectionContainer.h" compile="0"
+            resource="0" file="Source/IKeyPressCollectionContainer.h"/>
       <FILE id="DJSlix" name="TabsContainerComponent.cpp" compile="1" resource="0"
             file="Source/TabsContainerComponent.cpp"/>
       <FILE id="PuGF9F" name="TabsContainerComponent.h" compile="0" resource="0"

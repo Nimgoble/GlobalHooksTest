@@ -18,8 +18,9 @@
 
 #include "JuceHeader.h"
 #include "SoundHotKeyInfo.h"
+#include "IKeyPressCollectionContainer.h"
 
-class SoundHotKeyInfoContainer
+class SoundHotKeyInfoContainer : public IKeyPressCollectionContainer
 {
 public:
 	SoundHotKeyInfoContainer(ApplicationCommandManager& _commandManager, AudioDeviceManager &_audioDeviceManager, SoundHotKeyInfo _info);
@@ -33,11 +34,14 @@ public:
 
 	CommandID getCommandID(){ return info.CommandID; }
 
-	void AddKeyPress(const KeyPress &newKeyPress);
-	void RemoveKeyPress(const KeyPress &keyPress);
-
 	double getPercentageDone();
 	bool isPlaying(){ return transportSource.isPlaying(); }
+
+	virtual int OnKeyAdded(const KeyPress &newKeyPress);
+	virtual void OnKeyRemoved(const KeyPress &keyPress);
+	virtual void OnKeyChanged(const KeyPress &oldKeyPress, const KeyPress &newKeyPress);
+	virtual int NumberOfKeyPresses();
+	virtual const KeyPress &GetKeyPressByIndex(int index);
 
 private:
 	ApplicationCommandManager& commandManager;

@@ -306,8 +306,6 @@ bool SoundsTabComponent::perform(const InvocationInfo& info)
 		
 		return true;
 	}
-
-	return false;
 }
 //[/MiscUserCode]
 

@@ -52,18 +52,6 @@ void SoundHotKeyInfoContainer::PlayOrStop()
 	transportSource.start();
 }
 
-void SoundHotKeyInfoContainer::AddKeyPress(const KeyPress &newKeyPress)
-{
-	commandManager.getKeyMappings()->addKeyPress(info.CommandID, newKeyPress);
-	info.KeyPresses.add(newKeyPress);
-}
-void SoundHotKeyInfoContainer::RemoveKeyPress(const KeyPress &keyPress)
-{
-	int keyIndex = commandManager.getKeyMappings()->getKeyPressesAssignedToCommand(info.CommandID).indexOf(keyPress);
-	commandManager.getKeyMappings()->removeKeyPress(info.CommandID, keyIndex);
-	info.KeyPresses.removeFirstMatchingValue(keyPress);
-}
-
 double SoundHotKeyInfoContainer::getPercentageDone()
 {
 	double rtn = 0.0f;
@@ -74,6 +62,33 @@ double SoundHotKeyInfoContainer::getPercentageDone()
 		rtn = currentPosition / totalLength;
 	}
 	return rtn;
+}
+
+int SoundHotKeyInfoContainer::OnKeyAdded(const KeyPress &newKeyPress)
+{
+	commandManager.getKeyMappings()->addKeyPress(info.CommandID, newKeyPress);
+	info.KeyPresses.add(newKeyPress);
+	return info.KeyPresses.indexOf(newKeyPress);
+}
+void SoundHotKeyInfoContainer::OnKeyRemoved(const KeyPress &keyPress)
+{
+	int keyIndex = commandManager.getKeyMappings()->getKeyPressesAssignedToCommand(info.CommandID).indexOf(keyPress);
+	commandManager.getKeyMappings()->removeKeyPress(info.CommandID, keyIndex);
+	info.KeyPresses.removeFirstMatchingValue(keyPress);
+}
+void SoundHotKeyInfoContainer::OnKeyChanged(const KeyPress &oldKeyPress, const KeyPress &newKeyPress)
+{
+	OnKeyRemoved(oldKeyPress);
+	OnKeyAdded(newKeyPress);
+}
+
+int SoundHotKeyInfoContainer::NumberOfKeyPresses()
+{
+	return info.KeyPresses.size();
+}
+const KeyPress &SoundHotKeyInfoContainer::GetKeyPressByIndex(int index)
+{
+	return info.KeyPresses.getReference(index);
 }
 
 void SoundHotKeyInfoContainer::LoadTransportSource(const File& audioFile)

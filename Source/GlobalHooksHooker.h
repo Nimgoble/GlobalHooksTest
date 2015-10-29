@@ -36,16 +36,20 @@ public:
 		}
 	}
 
-	static void Run()
+	static bool Run()
 	{
+		if (!IsHookInitialized())
+			return false;
+
 		if (IsHookRunning())
-			return;
+			return false;
 
 		{
 			GlobalHooksLock lock(GlobalHooksHooker::HookMutex);
 			isHookRunning = true;
-			globalHooksThread = new GlobalHooksThread(&GlobalHooksHooker::GlobalHooksRunResult, eventTypeToHook);
+			globalHooksThread = new GlobalHooksThread(eventTypeToHook);
 		}
+		return true;
 	}
 
 	static void Shutdown()
@@ -83,6 +87,57 @@ public:
 		}
 	}
 
+	static bool IsHookInitialized()
+	{
+		{
+			GlobalHooksLock lock(GlobalHooksHooker::HookMutex);
+			return isHookInitialized;
+		}
+	}
+
+	static bool IsHookRunning()
+	{
+		{
+			GlobalHooksLock lock(GlobalHooksHooker::HookMutex);
+			bool threadRunning = (globalHooksThread == nullptr) ? false : globalHooksThread->isThreadRunning();
+			return isHookRunning && threadRunning;
+		}
+	}
+
+	static event_type GetEventTypeToHook(){ return eventTypeToHook; }
+private:
+	static juce::Array<GlobalHooksDispatchListener *, CriticalSection> HooksListeners;
+	static CriticalSection HookMutex;
+	static bool isHookInitialized;
+	static bool isHookRunning;
+	static event_type eventTypeToHook;
+
+	static juce::ScopedPointer<GlobalHooksThread> globalHooksThread;
+
+	static juce::ModifierKeys GetJUCEModifierKeysFromEvent(uiohook_event * const event)
+	{
+		int flags = 0;
+		juce::ModifierKeys keys;
+		if ((event->mask & MASK_SHIFT_L) || (event->mask & MASK_SHIFT_R))
+			flags |= juce::ModifierKeys::shiftModifier;
+
+		if
+			(
+			((event->mask & MASK_CTRL_L) || (event->mask & MASK_CTRL_R)) &&
+			((event->mask & MASK_ALT_L) || (event->mask & MASK_ALT_R))
+			)
+			flags |= juce::ModifierKeys::ctrlAltCommandModifiers;
+		else
+		{
+			if ((event->mask & MASK_CTRL_L) || (event->mask & MASK_CTRL_R))
+				flags |= juce::ModifierKeys::ctrlModifier;
+			if ((event->mask & MASK_ALT_L) || (event->mask & MASK_ALT_R))
+				flags |= juce::ModifierKeys::altModifier;
+		}
+
+		return keys.withFlags(flags);
+	}
+
 	static void StaticDispatchProcedure(uiohook_event * const event)
 	{
 		//Do this outside of the lock, since the hook's cleanup depends on it.
@@ -90,7 +145,7 @@ public:
 			return;
 
 		{
-			GlobalHooksLock lock(GlobalHooksHooker::HookMutex);	
+			GlobalHooksLock lock(GlobalHooksHooker::HookMutex);
 
 			const juce_wchar textCharacter = event->data.keyboard.keychar;
 
@@ -119,11 +174,11 @@ public:
 			}
 
 			const juce::KeyPress keyInfo
-			(
+				(
 				key,
 				GetJUCEModifierKeysFromEvent(event),
 				textCharacter
-			);
+				);
 
 			for (int i = HooksListeners.size(); --i >= 0;)
 			{
@@ -131,80 +186,9 @@ public:
 				if (listener->WantsMessage(event))
 					listener->KeyPressed(keyInfo);
 			}
-				
+
 		}
 	}
-
-	static juce::ModifierKeys GetJUCEModifierKeysFromEvent(uiohook_event * const event)
-	{
-		int flags = 0;
-		juce::ModifierKeys keys;
-		if ((event->mask & MASK_SHIFT_L) || (event->mask & MASK_SHIFT_R))
-			flags |= juce::ModifierKeys::shiftModifier;
-
-		if
-		(
-			((event->mask & MASK_CTRL_L) || (event->mask & MASK_CTRL_R)) &&
-			((event->mask & MASK_ALT_L) || (event->mask & MASK_ALT_R))
-		)
-			flags |= juce::ModifierKeys::ctrlAltCommandModifiers;
-		else
-		{
-			if ((event->mask & MASK_CTRL_L) || (event->mask & MASK_CTRL_R))
-				flags |= juce::ModifierKeys::ctrlModifier;
-			if ((event->mask & MASK_ALT_L) || (event->mask & MASK_ALT_R))
-				flags |= juce::ModifierKeys::altModifier;
-		}
-
-		return keys.withFlags(flags);
-	}
-
-	static void GlobalHooksRunResult(int result)
-	{
-		SetHookRunning((result == UIOHOOK_SUCCESS));
-	}
-
-	static bool IsHookInitialized()
-	{
-		{
-			GlobalHooksLock lock(GlobalHooksHooker::HookMutex);
-			return isHookInitialized;
-		}
-	}
-
-	static void SetHookInitialized(bool initialized)
-	{
-		{
-			GlobalHooksLock lock(GlobalHooksHooker::HookMutex);
-			isHookInitialized = initialized;
-		}
-	}
-
-	static bool IsHookRunning()
-	{
-		{
-			GlobalHooksLock lock(GlobalHooksHooker::HookMutex);
-			return isHookRunning;
-		}
-	}
-
-	static void SetHookRunning(bool running)
-	{
-		{
-			GlobalHooksLock lock(GlobalHooksHooker::HookMutex);
-			isHookRunning = running;
-		}
-	}
-
-	static event_type GetEventTypeToHook(){ return eventTypeToHook; }
-private:
-	static juce::Array<GlobalHooksDispatchListener *, CriticalSection> HooksListeners;
-	static CriticalSection HookMutex;
-	static bool isHookInitialized;
-	static bool isHookRunning;
-	static event_type eventTypeToHook;
-
-	static juce::ScopedPointer<GlobalHooksThread> globalHooksThread;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GlobalHooksHooker)
 };

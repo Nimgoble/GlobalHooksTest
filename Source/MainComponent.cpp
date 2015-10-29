@@ -30,8 +30,7 @@
 MainComponent::MainComponent ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	audioDeviceManager = new AudioDeviceManager();
-	audioDeviceManager->initialise(2, 2, 0, true, String::empty, 0);//TODO: device options.
+	InitializeAudioDeviceManager();
     //[/Constructor_pre]
 
     addAndMakeVisible (tabsContainer = new TabsContainerComponent (*audioDeviceManager));
@@ -89,6 +88,51 @@ void MainComponent::resized()
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 
+void MainComponent::Cleanup()
+{
+	SaveAudioDeviceSettings();
+}
+
+void MainComponent::InitializeAudioDeviceManager()
+{
+	audioDeviceManager = new AudioDeviceManager();
+	String audioSettingsFileSrc = GetAudioSettingsFileLocation();
+	File audioSettingsFile = File(audioSettingsFileSrc);
+	XmlElement *savedState = nullptr;
+	if (audioSettingsFile.existsAsFile())
+	{
+		XmlDocument doc(audioSettingsFile);
+		savedState = doc.getDocumentElement();
+	}
+	else
+	{
+		File::createFileWithoutCheckingPath(audioSettingsFileSrc);
+	}
+
+	String status = audioDeviceManager->initialise(2, 2, savedState, true, String::empty, 0);//TODO: device options.
+
+	if (savedState != nullptr)
+	{
+		delete savedState;
+		savedState = nullptr;
+	}
+}
+
+void MainComponent::SaveAudioDeviceSettings()
+{
+	XmlElement *savedState = audioDeviceManager->createStateXml();
+	if (savedState != nullptr)
+	{
+		savedState->writeToFile(GetAudioSettingsFileLocation(), String::empty);
+		delete savedState;
+		savedState = nullptr;
+	}
+}
+
+String MainComponent::GetAudioSettingsFileLocation()
+{
+	return File::getSpecialLocation(File::SpecialLocationType::currentExecutableFile).getParentDirectory().getFullPathName() + "\\audiosettings.xml";
+}
 
 
 ApplicationCommandTarget* MainComponent::getNextCommandTarget()

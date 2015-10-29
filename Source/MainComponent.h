@@ -45,6 +45,7 @@ public:
 
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
+	void Cleanup();
     //[/UserMethods]
 
     void paint (Graphics& g);
@@ -55,6 +56,11 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	//juce::KeyMappingEditorComponent keyMappingEditor;
+
+	void InitializeAudioDeviceManager();
+	void SaveAudioDeviceSettings();
+
+	String GetAudioSettingsFileLocation();
 
 	ScopedPointer<AudioDeviceManager> audioDeviceManager;
 

@@ -39,6 +39,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::Cleanup()
 {
+	mainComponent->Cleanup();
 	/*GlobalHooksManager::getGlobalHooksManager().removeKeyListener(getApplicationCommandManager().getKeyMappings());
 	GlobalHooksManager::getGlobalHooksManager().Shutdown();*/
 	if (applicationCommandManager != nullptr)
@@ -78,8 +79,4 @@ void MainWindow::handleAsyncUpdate()
 	commandManager.registerAllCommandsForTarget(mainComponent);
 	commandManager.registerAllCommandsForTarget(JUCEApplication::getInstance());
 	commandManager.setFirstCommandTarget(mainComponent);
-	/*juce::ApplicationCommandInfo commandInfo(3);
-	commandInfo.setInfo("Added Command", "Command that was added at runtime.", "Test Commands", 0);
-	commandInfo.addDefaultKeypress('y', juce::ModifierKeys::ctrlModifier);
-	commandManager.registerCommand(commandInfo);*/
 }

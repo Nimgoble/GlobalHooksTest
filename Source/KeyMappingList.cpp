@@ -14,7 +14,7 @@
 
 //==============================================================================
 
-KeyMappingList::KeyMappingList(ApplicationCommandManager& _commandManager, SoundHotKeyInfoContainer *_container)
+KeyMappingList::KeyMappingList(ApplicationCommandManager& _commandManager, IKeyPressCollectionContainer *_container)
 	: commandManager(_commandManager), container(_container)
 {
 	setInterceptsMouseClicks(false, true);
@@ -23,8 +23,8 @@ KeyMappingList::KeyMappingList(ApplicationCommandManager& _commandManager, Sound
 
 	if (container != nullptr)
 	{
-		for (int i = 0; i < container->GetSoundHotKeyInfo().KeyPresses.size(); ++i)
-			addKeyPressButton(i, container->GetSoundHotKeyInfo().KeyPresses.getReference(i), false);
+		for (int i = 0; i < container->NumberOfKeyPresses(); ++i)
+			addKeyPressButton(i, container->GetKeyPressByIndex(i), false);
 	}
 	addKeyButton = nullptr;
 	addKeyPressButton(-1, KeyPress(-1), false);
@@ -100,8 +100,8 @@ void KeyMappingList::OnKeyAdded(const KeyPress &newKeyPress, int keyIndex)
 	if (container == nullptr)
 		return;
 
-	container->AddKeyPress(newKeyPress);
-	addKeyPressButton(container->GetSoundHotKeyInfo().KeyPresses.indexOf(newKeyPress), newKeyPress, false);
+	int newIndex = container->OnKeyAdded(newKeyPress);
+	addKeyPressButton(newIndex, newKeyPress, false);
 	
 }
 void KeyMappingList::OnKeyRemoved(ChangeKeyButton *button, const KeyPress &keyPress, int keyIndex)
@@ -109,7 +109,7 @@ void KeyMappingList::OnKeyRemoved(ChangeKeyButton *button, const KeyPress &keyPr
 	if (container == nullptr)
 		return;
 
-	container->RemoveKeyPress(keyPress);
+	container->OnKeyRemoved(keyPress);
 	removeChildComponent(button);
 	keyChangeButtons.removeObject(button, true);
 }
@@ -125,8 +125,7 @@ void KeyMappingList::OnKeyChanged(const KeyPress &oldKeyPress, const KeyPress &n
 	{
 		commandManager.getKeyMappings()->removeKeyPress(newKeyPress);
 
-		container->RemoveKeyPress(oldKeyPress);
-		container->AddKeyPress(newKeyPress);
+		container->OnKeyChanged(oldKeyPress, newKeyPress);
 		repaint();
 	}
 	else
@@ -154,18 +153,3 @@ String KeyMappingList::GetCommandName(CommandID id)
 {
 	return commandManager.getNameOfCommand(id);
 }
-
-//ChangeKeyButton *KeyMappingList::GetChangeKeyButtonByKeyCode(int keyCode)
-//{
-//	for (int i = 0; i < keyChangeButtons.size(); ++i)
-//	{
-//		ChangeKeyButton *b = keyChangeButtons.getUnchecked(i);
-//		if (b == nullptr)
-//			return nullptr;
-//
-//		if (b->getKeyCode() == keyCode)
-//			return b;
-//	}
-//
-//	return nullptr;
-//}

@@ -21,8 +21,6 @@ public:
 	virtual void KeyPressed(const juce::KeyPress& key) = 0;
 };
 
-typedef void(*GlobalHooksResultsCallback)(int);
-
 
 
 #endif  // GLOBALHOOKSLISTENER_H_INCLUDED

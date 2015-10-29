@@ -13,7 +13,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "ChangeKeyButton.h"
-#include "SoundHotKeyInfoContainer.h"
+#include "IKeyPressCollectionContainer.h"
 
 //==============================================================================
 /*
@@ -21,7 +21,7 @@
 class KeyMappingList : public Component, public ChangeKeyListener
 {
 public:
-	KeyMappingList(ApplicationCommandManager& _commandManager, SoundHotKeyInfoContainer *_container);
+	KeyMappingList(ApplicationCommandManager& _commandManager, IKeyPressCollectionContainer *_container);
 	~KeyMappingList();
 	void addKeyPressButton(int keyNum, const KeyPress &keyPress, const bool isReadOnly);
 	void paint(Graphics& g) override;
@@ -38,7 +38,7 @@ public:
 private:
 	ApplicationCommandManager& commandManager;
 	OwnedArray<ChangeKeyButton> keyChangeButtons;
-	WeakReference<SoundHotKeyInfoContainer> container;
+	WeakReference<IKeyPressCollectionContainer> container;
 	ScopedPointer<ChangeKeyButton> addKeyButton;
 
 	//ChangeKeyButton *GetChangeKeyButtonByKeyCode(int keyCode);

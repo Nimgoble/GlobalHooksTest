@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<DEVICESETUP deviceType="Windows Audio" audioOutputDeviceName="Realtek Digital Output (Realtek High Definition Audio)"
+             audioInputDeviceName="" audioDeviceRate="48000"/>
