@@ -29,12 +29,13 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-SoundsTabComponent::SoundsTabComponent (AudioDeviceManager &_audioDeviceManager)
-    : audioDeviceManager(_audioDeviceManager)
+SoundsTabComponent::SoundsTabComponent (AudioDeviceManager &_audioDeviceManager, ApplicationSettingsFile &_applicationSettingsFile)
+    : audioDeviceManager(_audioDeviceManager),
+      applicationSettingsFile(_applicationSettingsFile)
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	addAndMakeVisible(menuBar = new MenuBarComponent(this));
-	currentConfigFile = new SoundHotKeyConfigFile(audioDeviceManager, MainWindow::getApplicationCommandManager());
+	currentConfigFile = new SoundHotKeyConfigFile(audioDeviceManager, MainWindow::getApplicationCommandManager(), applicationSettingsFile);
     //[/Constructor_pre]
 
     addAndMakeVisible (SoundHotKeyListBox = new ListBox());
@@ -101,6 +102,8 @@ void SoundsTabComponent::resized()
 	soundFileDragAndDropTarget->repaint();
     //[/UserResized]
 }
+
+
 
 //[MiscUserCode] You can add your own definitions of your custom methods or any other code here...
 int SoundsTabComponent::getNumRows() { return (currentConfigFile == nullptr) ? 0 : currentConfigFile->NumberOfSoundHotKeyEntries(); }
@@ -194,12 +197,12 @@ void SoundsTabComponent::LoadSoundHotKeyFile(File &file)
 		currentConfigFile = nullptr;
 	}
 
-	currentConfigFile = new SoundHotKeyConfigFile(audioDeviceManager, MainWindow::getApplicationCommandManager());
+	currentConfigFile = new SoundHotKeyConfigFile(audioDeviceManager, MainWindow::getApplicationCommandManager(), applicationSettingsFile);
 	if (!currentConfigFile->LoadFile(file))
 	{
 		//Unload and load a blank config file.
 		currentConfigFile = nullptr;
-		currentConfigFile = new SoundHotKeyConfigFile(audioDeviceManager, MainWindow::getApplicationCommandManager());
+		currentConfigFile = new SoundHotKeyConfigFile(audioDeviceManager, MainWindow::getApplicationCommandManager(), applicationSettingsFile);
 	}
 
 	SoundHotKeyListBox->updateContent();
@@ -240,6 +243,7 @@ void SoundsTabComponent::getAllCommands(Array<CommandID>& commands)
 	commands.add(CommandIDs::cLoadSoundHotKeyFile);
 	commands.add(CommandIDs::cSaveSoundHotkeyFile);
 	commands.add(CommandIDs::cSaveSoundHotkeyFileAs);
+	commands.add(applicationSettingsFile.getStopAllSoundCommandInfo().commandID);
 	for (int i = 0; i < currentConfigFile->NumberOfSoundHotKeyEntries(); ++i)
 	{
 		commands.add(currentConfigFile->GetContainerByIndex(i)->getCommandID());
@@ -263,11 +267,19 @@ void SoundsTabComponent::getCommandInfo(CommandID commandID, ApplicationCommandI
 		result.addDefaultKeypress('S', juce::ModifierKeys::ctrlModifier | juce::ModifierKeys::shiftModifier);
 		break;
 	default:
-		SoundHotKeyInfoContainer *container = currentConfigFile->GetContainerByCommandID(commandID);
-		if (container == nullptr)
-			return;
+		ApplicationCommandInfo stopAllSoundsInfo = applicationSettingsFile.getStopAllSoundCommandInfo();
+		if (commandID == stopAllSoundsInfo.commandID)
+		{
+			result = stopAllSoundsInfo;
+		}
+		else
+		{
+			SoundHotKeyInfoContainer *container = currentConfigFile->GetContainerByCommandID(commandID);
+			if (container == nullptr)
+				return;
 
-		result = container->GetSoundHotKeyInfo().getApplicationCommandInfo();
+			result = container->GetSoundHotKeyInfo().getApplicationCommandInfo();
+		}
 	}
 }
 
@@ -285,25 +297,37 @@ bool SoundsTabComponent::perform(const InvocationInfo& info)
 		Command_SaveSoundHotKeyFileAs();
 		return true;
 	default:
-		SoundHotKeyInfoContainer *container = currentConfigFile->GetContainerByCommandID(info.commandID);
-		if (container == nullptr)
-			return false;
-
-		//Play the sound
-		container->PlayOrStop();
-		//Tell the view to start updating.
-		int index = currentConfigFile->GetIndexOfContainer(container);
-		if (index >= 0)
+		ApplicationCommandInfo stopAllSoundsInfo = applicationSettingsFile.getStopAllSoundCommandInfo();
+		if (info.commandID == stopAllSoundsInfo.commandID)
 		{
-			Component *existingComponentToUpdate = SoundHotKeyListBox->getComponentForRowNumber(index);
-			if (existingComponentToUpdate != nullptr)
+			for (int i = 0; i < currentConfigFile->NumberOfSoundHotKeyEntries(); ++i)
 			{
-				SoundHotKeyView* comp = static_cast<SoundHotKeyView *> (existingComponentToUpdate);
-				if (comp != nullptr)
-					comp->startRepainting();
+				SoundHotKeyInfoContainer *container = currentConfigFile->GetContainerByIndex(i);
+				container->StopSound();
 			}
 		}
-		
+		else
+		{
+			SoundHotKeyInfoContainer *container = currentConfigFile->GetContainerByCommandID(info.commandID);
+			if (container == nullptr)
+				return false;
+
+			//Play the sound
+			container->PlayOrStop();
+			//Tell the view to start updating.
+			int index = currentConfigFile->GetIndexOfContainer(container);
+			if (index >= 0)
+			{
+				Component *existingComponentToUpdate = SoundHotKeyListBox->getComponentForRowNumber(index);
+				if (existingComponentToUpdate != nullptr)
+				{
+					SoundHotKeyView* comp = static_cast<SoundHotKeyView *> (existingComponentToUpdate);
+					if (comp != nullptr)
+						comp->startRepainting();
+				}
+			}
+		}
+
 		return true;
 	}
 }
@@ -321,8 +345,8 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="SoundsTabComponent" componentName=""
                  parentClasses="public Component, public ListBoxModel, public ChangeBroadcaster, public MenuBarModel, public SoundInfoOperationsListener, public ApplicationCommandTarget"
-                 constructorParams="AudioDeviceManager &amp;_audioDeviceManager"
-                 variableInitialisers="audioDeviceManager(_audioDeviceManager)"
+                 constructorParams="AudioDeviceManager &amp;_audioDeviceManager, ApplicationSettingsFile &amp;_applicationSettingsFile"
+                 variableInitialisers="audioDeviceManager(_audioDeviceManager),&#10;applicationSettingsFile(_applicationSettingsFile)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="600" initialHeight="400">
   <BACKGROUND backgroundColour="ffffffff"/>

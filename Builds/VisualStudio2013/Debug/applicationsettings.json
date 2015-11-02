@@ -1,0 +1,11 @@
+{
+  "PlayType": 2,
+  "UseGlobalHooks": false,
+  "StopAllSoundKeyPresses": [
+    {
+      "KeyCode": 66,
+      "ModifierFlags": 5,
+      "TextCharacter": 66
+    }
+  ]
+}

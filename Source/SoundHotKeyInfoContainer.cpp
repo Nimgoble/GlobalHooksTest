@@ -10,9 +10,16 @@
 
 #include "SoundHotKeyInfoContainer.h"
 
-SoundHotKeyInfoContainer::SoundHotKeyInfoContainer(ApplicationCommandManager& _commandManager, AudioDeviceManager &_audioDeviceManager, SoundHotKeyInfo _info) :
+SoundHotKeyInfoContainer::SoundHotKeyInfoContainer
+(
+	ApplicationCommandManager& _commandManager, 
+	AudioDeviceManager &_audioDeviceManager, 
+	ApplicationSettingsFile &_applicationSettingsFile, 
+	SoundHotKeyInfo _info
+) :
 	commandManager(_commandManager),
 	audioDeviceManager(_audioDeviceManager),
+	applicationSettingsFile(_applicationSettingsFile),
 	info(_info),
 	thread("audio file preview")
 {
@@ -41,15 +48,22 @@ void SoundHotKeyInfoContainer::PlayOrStop()
 	if (!sourceFileExists)
 		return;
 
+	StopSound();
+
+	if (applicationSettingsFile.getPlayType() == SoundPlayType::Restart)
+	{
+		transportSource.setPosition(0);
+		transportSource.start();
+	}
+}
+
+void SoundHotKeyInfoContainer::StopSound()
+{
+	if (!sourceFileExists)
+		return;
+
 	if (transportSource.isPlaying())
 		transportSource.stop();
-	/*else
-	{
-		
-	}*/
-
-	transportSource.setPosition(0);
-	transportSource.start();
 }
 
 double SoundHotKeyInfoContainer::getPercentageDone()

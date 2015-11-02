@@ -18,6 +18,7 @@
 */
 
 //[Headers] You can add your own extra header files here...
+#include "MainWindow.h"
 //[/Headers]
 
 #include "MainComponent.h"
@@ -31,9 +32,10 @@ MainComponent::MainComponent ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
 	InitializeAudioDeviceManager();
+	InitializeApplicationSettings();
     //[/Constructor_pre]
 
-    addAndMakeVisible (tabsContainer = new TabsContainerComponent (*audioDeviceManager));
+    addAndMakeVisible (tabsContainer = new TabsContainerComponent (*audioDeviceManager, *applicationSettingsFile));
     tabsContainer->setName ("Tab Container");
 
 
@@ -91,13 +93,14 @@ void MainComponent::resized()
 void MainComponent::Cleanup()
 {
 	SaveAudioDeviceSettings();
+	SaveApplicationSettings();
 }
 
 void MainComponent::InitializeAudioDeviceManager()
 {
 	audioDeviceManager = new AudioDeviceManager();
 	String audioSettingsFileSrc = GetAudioSettingsFileLocation();
-	File audioSettingsFile = File(audioSettingsFileSrc);
+	juce::File audioSettingsFile = juce::File(audioSettingsFileSrc);
 	XmlElement *savedState = nullptr;
 	if (audioSettingsFile.existsAsFile())
 	{
@@ -106,7 +109,7 @@ void MainComponent::InitializeAudioDeviceManager()
 	}
 	else
 	{
-		File::createFileWithoutCheckingPath(audioSettingsFileSrc);
+		juce::File::createFileWithoutCheckingPath(audioSettingsFileSrc);
 	}
 
 	String status = audioDeviceManager->initialise(2, 2, savedState, true, String::empty, 0);//TODO: device options.
@@ -131,7 +134,33 @@ void MainComponent::SaveAudioDeviceSettings()
 
 String MainComponent::GetAudioSettingsFileLocation()
 {
-	return File::getSpecialLocation(File::SpecialLocationType::currentExecutableFile).getParentDirectory().getFullPathName() + "\\audiosettings.xml";
+	return juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentExecutableFile).getParentDirectory().getChildFile("audiosettings.xml").getFullPathName();
+}
+
+void MainComponent::InitializeApplicationSettings()
+{
+	applicationSettingsFile = new ApplicationSettingsFile(MainWindow::getApplicationCommandManager());
+	String applicationSettingsFileSrc = GetApplicationSettingsFileLocation();
+	juce::File applicationSettingsFileFile = juce::File(applicationSettingsFileSrc);
+	if (!applicationSettingsFileFile.existsAsFile())
+	{
+		applicationSettingsFileFile = juce::File::createFileWithoutCheckingPath(applicationSettingsFileSrc);
+		OutputStream *stream = applicationSettingsFileFile.createOutputStream();
+		stream->setPosition(0);
+		stream->writeString(String::empty);
+		stream->flush();
+		delete stream;
+		stream = nullptr;
+	}
+	applicationSettingsFile->Load(applicationSettingsFileFile);
+}
+void MainComponent::SaveApplicationSettings()
+{
+	applicationSettingsFile->Save();
+}
+String MainComponent::GetApplicationSettingsFileLocation()
+{
+	return juce::File::getSpecialLocation(juce::File::SpecialLocationType::currentExecutableFile).getParentDirectory().getChildFile("applicationsettings.json").getFullPathName();
 }
 
 

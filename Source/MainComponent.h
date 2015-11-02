@@ -23,6 +23,7 @@
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
 #include "TabsContainerComponent.h"
+#include "ApplicationSettingsFile.h"
 //[/Headers]
 
 
@@ -59,8 +60,12 @@ private:
 
 	void InitializeAudioDeviceManager();
 	void SaveAudioDeviceSettings();
-
 	String GetAudioSettingsFileLocation();
+
+	ScopedPointer<ApplicationSettingsFile> applicationSettingsFile;
+	void InitializeApplicationSettings();
+	void SaveApplicationSettings();
+	String GetApplicationSettingsFileLocation();
 
 	ScopedPointer<AudioDeviceManager> audioDeviceManager;
 

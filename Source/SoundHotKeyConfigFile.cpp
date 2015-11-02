@@ -12,9 +12,10 @@
 
 int SoundHotKeyConfigFile::COMMANDS_BASE = 0x2200;
 
-SoundHotKeyConfigFile::SoundHotKeyConfigFile(AudioDeviceManager &_audioDeviceManager, ApplicationCommandManager &_commandManager) :
+SoundHotKeyConfigFile::SoundHotKeyConfigFile(AudioDeviceManager &_audioDeviceManager, ApplicationCommandManager &_commandManager, ApplicationSettingsFile &_applicationSettingsFile) :
 	audioDeviceManager(_audioDeviceManager),
 	commandManager(_commandManager),
+	applicationSettingsFile(_applicationSettingsFile),
 	isNewFile(true)
 {
 
@@ -44,7 +45,7 @@ bool SoundHotKeyConfigFile::LoadFile(File &file)
 
 				SoundHotKeyInfo info(child);
 				info.CommandID = CommandID(COMMANDS_BASE + i);
-				SoundHotKeyInfoContainer *container = new SoundHotKeyInfoContainer(commandManager, audioDeviceManager, info);
+				SoundHotKeyInfoContainer *container = new SoundHotKeyInfoContainer(commandManager, audioDeviceManager, applicationSettingsFile, info);
 				SoundHotKeyInfoContainers.add(container);
 
 				//Add the new command
@@ -109,7 +110,7 @@ int SoundHotKeyConfigFile::AddSoundHotKey(String fileSource)
 	info.CommandID = getNextCommandID();
 	int newRowIndex = SoundHotKeyInfoContainers.size();
 
-	SoundHotKeyInfoContainer *container = new SoundHotKeyInfoContainer(commandManager, audioDeviceManager, info);
+	SoundHotKeyInfoContainer *container = new SoundHotKeyInfoContainer(commandManager, audioDeviceManager, applicationSettingsFile, info);
 	SoundHotKeyInfoContainers.add(container);
 
 	commandManager.registerCommand(info.getApplicationCommandInfo());

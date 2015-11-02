@@ -14,8 +14,8 @@
 
 //==============================================================================
 
-KeyMappingList::KeyMappingList(ApplicationCommandManager& _commandManager, IKeyPressCollectionContainer *_container)
-	: commandManager(_commandManager), container(_container)
+KeyMappingList::KeyMappingList(ApplicationCommandManager& _commandManager, IKeyPressCollectionContainer *_container, int _maxKeys)
+	: commandManager(_commandManager), container(_container), maxKeys(_maxKeys)
 {
 	setInterceptsMouseClicks(false, true);
 
@@ -55,7 +55,7 @@ void KeyMappingList::addKeyPressButton(int keyNum, const KeyPress &keyPress, con
 	}
 
 	b->setEnabled(!isReadOnly);
-	b->setVisible(keyChangeButtons.size() <= (int)maxNumAssignments);
+	b->setVisible(keyChangeButtons.size() <= maxKeys);
 	addChildComponent(b);
 	update();
 }

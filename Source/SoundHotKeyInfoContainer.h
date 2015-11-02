@@ -19,16 +19,18 @@
 #include "JuceHeader.h"
 #include "SoundHotKeyInfo.h"
 #include "IKeyPressCollectionContainer.h"
+#include "ApplicationSettingsFile.h"
 
 class SoundHotKeyInfoContainer : public IKeyPressCollectionContainer
 {
 public:
-	SoundHotKeyInfoContainer(ApplicationCommandManager& _commandManager, AudioDeviceManager &_audioDeviceManager, SoundHotKeyInfo _info);
+	SoundHotKeyInfoContainer(ApplicationCommandManager& _commandManager, AudioDeviceManager &_audioDeviceManager, ApplicationSettingsFile &_applicationSettingsFile, SoundHotKeyInfo _info);
 	~SoundHotKeyInfoContainer();
 
 	SoundHotKeyInfo &GetSoundHotKeyInfo() { return info; }
 
 	void PlayOrStop();
+	void StopSound();
 
 	bool DoesSourceFileExist() { return sourceFileExists; }
 
@@ -46,6 +48,7 @@ public:
 private:
 	ApplicationCommandManager& commandManager;
 	AudioDeviceManager &audioDeviceManager;
+	ApplicationSettingsFile &applicationSettingsFile;
 	AudioFormatManager formatManager;
 	AudioSourcePlayer audioSourcePlayer;
 	AudioTransportSource transportSource;
@@ -61,6 +64,8 @@ private:
 
 	void LoadTransportSource(const File& audioFile);
 	void UnloadTransportSource();
+
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SoundHotKeyInfoContainer)
 };
 
 

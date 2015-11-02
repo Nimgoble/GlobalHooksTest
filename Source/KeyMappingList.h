@@ -21,7 +21,7 @@
 class KeyMappingList : public Component, public ChangeKeyListener
 {
 public:
-	KeyMappingList(ApplicationCommandManager& _commandManager, IKeyPressCollectionContainer *_container);
+	KeyMappingList(ApplicationCommandManager& _commandManager, IKeyPressCollectionContainer *_container, int _maxKeys);
 	~KeyMappingList();
 	void addKeyPressButton(int keyNum, const KeyPress &keyPress, const bool isReadOnly);
 	void paint(Graphics& g) override;
@@ -41,9 +41,9 @@ private:
 	WeakReference<IKeyPressCollectionContainer> container;
 	ScopedPointer<ChangeKeyButton> addKeyButton;
 
-	//ChangeKeyButton *GetChangeKeyButtonByKeyCode(int keyCode);
+	int maxKeys;
 
-	enum { maxNumAssignments = 5 };
+	//ChangeKeyButton *GetChangeKeyButtonByKeyCode(int keyCode);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (KeyMappingList)
 };

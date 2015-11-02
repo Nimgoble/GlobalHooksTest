@@ -18,7 +18,7 @@
 class SoundHotKeyConfigFile
 {
 public:
-	SoundHotKeyConfigFile(AudioDeviceManager &_audioDeviceManager, ApplicationCommandManager &_commandManager);
+	SoundHotKeyConfigFile(AudioDeviceManager &_audioDeviceManager, ApplicationCommandManager &_commandManager, ApplicationSettingsFile &_applicationSettingsFile);
 	~SoundHotKeyConfigFile();
 	bool LoadFile(File &file);
 	bool SaveFile();
@@ -37,14 +37,14 @@ public:
 	bool IsNewFile(){ return isNewFile; }
 	String GetConfigFilePath(){ return configFile; }
 
+	static int COMMANDS_BASE;
 private:
 	AudioDeviceManager &audioDeviceManager;
 	ApplicationCommandManager &commandManager;
+	ApplicationSettingsFile &applicationSettingsFile;
 	OwnedArray<SoundHotKeyInfoContainer> SoundHotKeyInfoContainers;
 	String configFile;
 	bool isNewFile;
-
-	static int COMMANDS_BASE;
 
 	CommandID getNextCommandID();
 };

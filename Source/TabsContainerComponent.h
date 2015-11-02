@@ -41,7 +41,7 @@ class TabsContainerComponent  : public TabbedComponent,
 {
 public:
     //==============================================================================
-    TabsContainerComponent (AudioDeviceManager &_audioDeviceManager);
+    TabsContainerComponent (AudioDeviceManager &_audioDeviceManager, ApplicationSettingsFile &_applicationSettingsFile);
     ~TabsContainerComponent();
 
     //==============================================================================
@@ -60,6 +60,7 @@ public:
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	AudioDeviceManager &audioDeviceManager;
+	ApplicationSettingsFile &applicationSettingsFile;
 	ScopedPointer<SoundsTabComponent> soundsTab;
 	ScopedPointer<SettingsTabComponent> settingsTab;
     //[/UserVariables]

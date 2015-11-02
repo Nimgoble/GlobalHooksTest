@@ -79,7 +79,7 @@ SoundHotKeyView::SoundHotKeyView (SoundInfoOperationsListener *_listener, SoundH
     lblName->setColour (TextEditor::textColourId, Colours::black);
     lblName->setColour (TextEditor::backgroundColourId, Colour (0x00000000));
 
-    addAndMakeVisible (keyMappingList = new KeyMappingList (manager, container));
+    addAndMakeVisible (keyMappingList = new KeyMappingList (manager, container, 5));
     keyMappingList->setName ("List Of Key Mappings");
 
     addAndMakeVisible (btnRemove = new TextButton ("Removal Button"));
@@ -265,7 +265,7 @@ BEGIN_JUCER_METADATA
          fontsize="15" bold="0" italic="0" justification="33"/>
   <GENERICCOMPONENT name="List Of Key Mappings" id="8d8dd9199cffc638" memberName="keyMappingList"
                     virtualName="" explicitFocusOrder="0" pos="88 48 416 24" class="KeyMappingList"
-                    params="manager, container"/>
+                    params="manager, container, 5"/>
   <TEXTBUTTON name="Removal Button" id="23d6a364c662b5d" memberName="btnRemove"
               virtualName="" explicitFocusOrder="0" pos="0 0 24 24" tooltip="Removes the current sound from the configuration&#10;"
               buttonText="X" connectedEdges="5" needsCallback="1" radioGroupId="0"/>

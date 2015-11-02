@@ -22,6 +22,8 @@
 
 //[Headers]     -- You can add your own extra header files here --
 #include "JuceHeader.h"
+#include "ApplicationSettingsFile.h"
+#include "KeyMappingList.h"
 //[/Headers]
 
 
@@ -35,11 +37,13 @@
                                                                     //[/Comments]
 */
 class SettingsTabComponent  : public Component,
-                              public ApplicationCommandTarget
+                              public ApplicationCommandTarget,
+                              public ComboBoxListener,
+                              public ButtonListener
 {
 public:
     //==============================================================================
-    SettingsTabComponent (AudioDeviceManager &_audioDeviceManager);
+    SettingsTabComponent (AudioDeviceManager &_audioDeviceManager, ApplicationSettingsFile &_applicationSettingsFile);
     ~SettingsTabComponent();
 
     //==============================================================================
@@ -52,16 +56,25 @@ public:
 
     void paint (Graphics& g);
     void resized();
+    void comboBoxChanged (ComboBox* comboBoxThatHasChanged);
+    void buttonClicked (Button* buttonThatWasClicked);
 
 
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
 	AudioDeviceManager &audioDeviceManager;
+	ApplicationSettingsFile &applicationSettingsFile;
     //[/UserVariables]
 
     //==============================================================================
     ScopedPointer<AudioDeviceSelectorComponent> audioDeviceSelector;
+    ScopedPointer<ComboBox> cmbPlaySoundType;
+    ScopedPointer<Label> lblPlaySoundType;
+    ScopedPointer<Label> lblUseBackgroundHooks;
+    ScopedPointer<ToggleButton> chkUseGlobalHooks;
+    ScopedPointer<Label> lblStopAllSoundsHotkey;
+    ScopedPointer<KeyMappingList> klStopAllSounds;
 
 
     //==============================================================================

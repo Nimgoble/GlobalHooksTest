@@ -28,13 +28,14 @@
 //[/MiscUserDefs]
 
 //==============================================================================
-TabsContainerComponent::TabsContainerComponent (AudioDeviceManager &_audioDeviceManager)
+TabsContainerComponent::TabsContainerComponent (AudioDeviceManager &_audioDeviceManager, ApplicationSettingsFile &_applicationSettingsFile)
     : TabbedComponent (TabbedButtonBar::TabsAtTop),
-      audioDeviceManager(_audioDeviceManager)
+      audioDeviceManager(_audioDeviceManager),
+      applicationSettingsFile(_applicationSettingsFile)
 {
     //[Constructor_pre] You can add your own custom stuff here..
-	soundsTab = new SoundsTabComponent(audioDeviceManager);
-	settingsTab = new SettingsTabComponent(audioDeviceManager);
+	soundsTab = new SoundsTabComponent(audioDeviceManager, applicationSettingsFile);
+	settingsTab = new SettingsTabComponent(audioDeviceManager, applicationSettingsFile);
 	addTab("Sounds", juce::Colours::white, soundsTab, true, 0);
 	addTab("Settings", juce::Colours::white, settingsTab, true, 1);
     //[/Constructor_pre]
@@ -126,8 +127,8 @@ BEGIN_JUCER_METADATA
 
 <JUCER_COMPONENT documentType="Component" className="TabsContainerComponent" componentName=""
                  parentClasses="public TabbedComponent, public ApplicationCommandTarget"
-                 constructorParams="AudioDeviceManager &amp;_audioDeviceManager"
-                 variableInitialisers="TabbedComponent (TabbedButtonBar::TabsAtTop),&#10;audioDeviceManager(_audioDeviceManager)"
+                 constructorParams="AudioDeviceManager &amp;_audioDeviceManager, ApplicationSettingsFile &amp;_applicationSettingsFile"
+                 variableInitialisers="TabbedComponent (TabbedButtonBar::TabsAtTop),&#10;audioDeviceManager(_audioDeviceManager),&#10;applicationSettingsFile(_applicationSettingsFile)"
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330"
                  fixedSize="0" initialWidth="600" initialHeight="400">
   <BACKGROUND backgroundColour="ffffffff"/>

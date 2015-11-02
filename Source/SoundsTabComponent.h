@@ -26,6 +26,7 @@
 #include "SoundFileDragAndDropTarget.h"
 #include "SoundInfoOperationsListener.h"
 #include "SoundHotKeyConfigFile.h"
+#include "ApplicationSettingsFile.h"
 //[/Headers]
 
 
@@ -47,7 +48,7 @@ class SoundsTabComponent  : public Component,
 {
 public:
     //==============================================================================
-    SoundsTabComponent (AudioDeviceManager &_audioDeviceManager);
+    SoundsTabComponent (AudioDeviceManager &_audioDeviceManager, ApplicationSettingsFile &_applicationSettingsFile);
     ~SoundsTabComponent();
 
     //==============================================================================
@@ -81,6 +82,7 @@ public:
 
 private:
     //[UserVariables]   -- You can add your own custom variables in this section.
+	ApplicationSettingsFile &applicationSettingsFile;
 	AudioDeviceManager &audioDeviceManager;
 	ScopedPointer<MenuBarComponent> menuBar;
 	ScopedPointer<SoundHotKeyConfigFile> currentConfigFile;
@@ -97,7 +99,7 @@ private:
 	void Command_SaveSoundHotKeyFile();
 	void Command_SaveSoundHotKeyFileAs();
 	void SaveSoundHotKeyFile(File &file);
-	
+
     //[/UserVariables]
 
     //==============================================================================
